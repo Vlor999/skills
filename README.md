@@ -29,6 +29,10 @@ skills/
     mocking.md
     refactoring.md
     tests.md
+  tutor/
+    SKILL.md
+    REFERENCE.md
+    EXAMPLES.md
   write-a-rule/
     SKILL.md
   write-a-skill/
@@ -49,6 +53,7 @@ main skill file.
 | `grill-with-docs` | Stress-tests a plan against project language and documentation, then updates `CONTEXT.md` and ADRs as decisions are made. |
 | `handoff` | Writes a compact handoff document so another agent or future session can continue the work. |
 | `tdd` | Guides test-driven development with a red-green-refactor loop and behavior-focused tests. |
+| `tutor` | Explains codebase architecture, technological choices (ADRs), mathematical equations, and algorithms, teaches concepts with interactive quizzes, and exports/synchronizes explored knowledge to a Notion workspace. |
 | `write-a-rule` | Helps create or edit `.agents/rules/*.md` files with YAML frontmatter, scoped globs, and concise project-specific guidance. |
 | `write-a-skill` | Helps create new skills with the expected structure, metadata, and supporting files. |
 
