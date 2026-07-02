@@ -1,8 +1,5 @@
 # SKILL.md frontmatter reference
 
-Complete reference for the YAML frontmatter of a `SKILL.md` file (Claude Code).
-Source: [docs.claude.com — Extend Claude with skills](https://code.claude.com/docs/en/skills.md), last verified 2026-07-01. Re-check against the live doc if this file is more than a few months old — Claude Code's skill spec evolves.
-
 ## Base rules
 
 - The file must be named **exactly** `SKILL.md` (case-sensitive).

@@ -35,6 +35,7 @@ Full frontmatter field reference (types, constraints, defaults): [REFERENCE.md](
 | Should this be usable as a destructive/workflow-specific action that Claude must never trigger on its own? | `disable-model-invocation: true` |
 | Is this background knowledge the user should never invoke directly via `/name`? | `user-invocable: false` |
 | Does the skill take input typed after `/name`? | `argument-hint`, plus `arguments` (space-separated names, or a YAML list) if there are several distinct named arguments |
+| Do you need extra trigger phrases/examples beyond the description sentence? | `when_to_use` (shares the 1536-char cap with `description`) |
 | Does it need to run specific tools without prompting, or must it be barred from certain tools for safety? | `allowed-tools` / `disallowed-tools` |
 | Does it need a specific model or reasoning effort regardless of session settings? | `model` / `effort` |
 | Should it run in a forked subagent instead of inline? | `context: fork` and `agent` |
