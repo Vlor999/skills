@@ -1,15 +1,44 @@
 ---
 name: teach
-description: Teach the user a new skill or concept, within this workspace.
+description: Teach the user a new skill or concept, in a persistent per-topic workspace.
 disable-model-invocation: true
 argument-hint: "What would you like to learn about?"
 ---
 
 The user has asked you to teach them something. This is a stateful request - they intend to learn the topic over multiple sessions.
 
+## Workspace Resolution
+
+Every topic gets its own workspace, named after the **topic** (dash-case): `terraform`, `cpp`, `vinyasa-yoga`.
+
+Workspaces are always **stored** in the teach repo at `~/dev/teach/<topic>/`, which is a git repository. They are **surfaced** in whatever project the user is working in, via a symlink at `./teach/<topic>/`. This way the lessons sit next to the code they're about, while the actual files live in one versioned place and are never lost.
+
+Before doing anything else, resolve the workspace:
+
+1. Determine `<topic>` from the user's argument. If they gave none, list the directories in `~/dev/teach/` and ask which one they want to continue (or whether to start a new one). Never guess.
+2. If the current directory *is* `~/dev/teach`, the workspace is simply `./<topic>/` — no symlink, skip to step 4.
+3. Otherwise bootstrap it (idempotent — safe to re-run, skip any step already done):
+   ```bash
+   mkdir -p ~/dev/teach/<topic> ./teach
+   ln -s ~/dev/teach/<topic> ./teach/<topic>
+   grep -qxF '/teach/' .git/info/exclude 2>/dev/null || echo '/teach/' >> .git/info/exclude
+   ```
+   Use `.git/info/exclude`, **not** `.gitignore` — the ignore rule must stay local to this clone and never appear in the host project's diff. If there is no `.git` directory, skip that line.
+4. Work inside the workspace from then on. All paths below are relative to it.
+
+## Committing
+
+The teach repo is the durable record. After you write or modify any workspace file, commit it:
+
+```bash
+git -C ~/dev/teach add -A && git -C ~/dev/teach commit -m "teach(<topic>): <what changed>"
+```
+
+Do this at the end of each lesson, and before the session ends. Never commit into the host project.
+
 ## Teaching Workspace
 
-Treat the current directory as a teaching workspace. The state of their learning is captured in this directory in several files:
+The state of their learning is captured in the workspace in several files:
 
 - `MISSION.md`: A document capturing the _reason_ the user is interested in the topic. This should be used to ground all teaching. Use the format in [MISSION-FORMAT.md](./MISSION-FORMAT.md).
 - `./reference/*.html`: A directory of reference materials. These are the compressed learnings from the lessons - cheat sheets, reference algorithms, syntax, yoga poses, glossaries. They are the raw units of learning. They should be beautiful documents which print out well, and are designed for quick reference.
