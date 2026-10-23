@@ -1,120 +1,121 @@
 ---
 name: fill-pr-template
-description: Fill a Pull Request (PR) template in a repository based on git diff and commits compared to main. Use when the user requests to fill a PR template, draft a PR description, or write a pull request file (pr.md).
+description: Rédige le corps d'une pull request à partir des changements de la branche, des tests réellement lancés et du ticket, en remplissant `.github/pull_request_template.md` s'il existe. Écrit le résultat dans un fichier temporaire hors arborescence projet. Use when asked to write a PR description, fill the PR template, or prepare PR content from a git diff.
+user-invocable: true
 ---
 
-# Fill PR Template (RTK Optimized)
+Rédige le corps d'une PR et l'écrit dans un fichier, prêt pour `gh pr create --body-file`.
 
-This skill automates the creation of a Pull Request (PR) description file named `pr.md` at the workspace root by analyzing the current git branch's commits, diffs, and structure compared to `main`. It automatically locates and parses any repository-specific PR template (e.g., in `.github/pull_request_template.md`).
+**Signature :** `/fill-pr-template [lien ou identifiant du ticket]`
 
-## ⚡ RTK (Rust Token Killer) Optimization
-To maximize token savings (60-90%) and get extremely compact, optimized command and file outputs:
-- **Use Terminal Shell Commands**: Always run git and file operations directly in the terminal via shell/bash commands (e.g., `git`, `cat`, `grep`/`rg`, `find`). The shell hooks automatically intercept and optimize these commands (e.g., `git status` -> `rtk git status`).
-- **Avoid Built-in Agent Tools**: Do not use the agent's built-in file view, list directory, or search tools (which do not pass through the bash hook). Instead, use `cat` / `find` / `grep` in the terminal, or prefix them explicitly:
-  ```bash
-  rtk read .github/pull_request_template.md
-  rtk find "pull_request"
-  ```
+Ce skill ne crée pas la PR et ne lance aucun test. Il rédige, rien de plus.
 
-## Quick Start
+---
 
-To generate `pr.md` for the current branch:
+## Étape 1 — Localiser le fichier de sortie
 
-1. Identify the current branch and its merge base with `main`:
-   ```bash
-   rtk git branch --show-current
-   rtk git merge-base main HEAD
-   ```
-2. Gather commits on this branch (automatically token-optimized by RTK):
-   ```bash
-   rtk git log $(git merge-base main HEAD)..HEAD --pretty=format:"- %s (%h) by %an"
-   ```
-3. Gather diff stat and changed files:
-   ```bash
-   rtk git diff --name-status $(git merge-base main HEAD)..HEAD
-   rtk git diff --stat $(git merge-base main HEAD)..HEAD
-   ```
-4. Locate the PR template file:
-   ```bash
-   find . -type f -name "*pull_request*_template.md" -not -path "*/.*" -not -path "*venv*"
-   ```
-   *(Or read it directly with RTK)*:
-   ```bash
-   rtk read .github/pull_request_template.md
-   ```
-5. Synthesize the collected information to fill out the PR template beautifully and write the completed PR description to [pr.md](file:///Users/adnet/dev/onboarding_de_sncf/pr.md) in the workspace root.
-
-## Workflows
-
-### 1. Gather Git Branch & Commit Context
-Run terminal commands to check the current branch and locate its common ancestor with the base branch (`main`):
 ```bash
-rtk git branch --show-current
-rtk git merge-base main HEAD
-```
-Extract all the commits made on the current branch since the merge-base:
-```bash
-rtk git log $(git merge-base main HEAD)..HEAD --pretty=format:"- %s (%h) by %an"
+echo "$(git rev-parse --absolute-git-dir)/PR_BODY.md"
 ```
 
-### 2. Extract Diffs and File Changes
-Get the list of modified/added/deleted files and their status:
+`git rev-parse` et pas `.git/` en dur : dans un worktree, `.git` est un **fichier**, pas un
+répertoire, et l'écriture échouerait. `--absolute-git-dir` plutôt que `--git-dir`, qui renvoie un
+chemin relatif quand on est à la racine du repo et casserait après un `cd`. Le chemin résolu est
+propre à chaque worktree, donc deux worktrees en parallèle ne se marchent pas dessus. Il pointe
+enfin vers un répertoire que git ne suit pas : le brouillon n'apparaît ni dans `git status` ni dans
+le diff de la PR qu'il décrit.
+
+---
+
+## Étape 2 — Rassembler les faits
+
+Branche de base — jamais en dur, elle diffère d'un repo à l'autre (`main`, `develop`, …) :
+
 ```bash
-rtk git diff --name-status $(git merge-base main HEAD)..HEAD
-```
-Get a high-level overview of line additions/deletions per file:
-```bash
-rtk git diff --stat $(git merge-base main HEAD)..HEAD
-```
-Inspect the actual code diff to understand functional modifications:
-```bash
-rtk git diff $(git merge-base main HEAD)..HEAD
+BASE=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null || echo origin/main)
+git diff --stat "$BASE"...HEAD
+git diff "$BASE"...HEAD
+git log --oneline "$BASE"..HEAD
 ```
 
-### 3. Locate and Read PR Template
-Locate the Pull Request template inside the workspace. The file is usually named `pull_request_template.md` or `pull_requests_template.md` inside a `.github` directory or the root.
-To find it using RTK-optimized shell searching:
+Rassemble aussi :
+
+- **Ticket** : le lien ou l'identifiant passé en argument. Ne le devine pas, ne le cherche pas.
+- **Tests lancés** : uniquement ceux dont tu as la trace dans la session en cours, avec leur résultat.
+- **Commandes du projet** : lis le `CLAUDE.md`, puis le `Makefile` / `package.json` / `pyproject.toml`
+  pour connaître les commandes de lint et de test, même si tu ne les as pas lancées.
+
+---
+
+## Étape 3 — Choisir le format
+
 ```bash
-find . -type f -name "*pull_request*_template.md" -not -path "*/.*" -not -path "*venv*"
+ls .github/pull_request_template.md
 ```
-If a template is found, read its content using `cat` or `rtk read` to keep the context size minimal:
-```bash
-rtk read .github/pull_request_template.md
-```
-If not found in the current workspace, check other branches where a template might have been added recently:
-```bash
-rtk git show feat/add-template-pr:.github/pull_request_template.md
-# Or check main branch
-rtk git show main:.github/pull_request_template.md
-```
-*If absolutely no template is found across these locations, fallback to this default template:*
+
+**Fichier présent** → c'est le format. Reprends ses titres et ses cases à cocher tels quels, sans en
+ajouter ni en retirer. Voir « Remplir le template » ci-dessous.
+
+**Fichier absent** → format court :
+
 ```markdown
-## 📝 Description
+## Intention
 
-<!-- Provide a clear summary of what this PR does and why. -->
+<1-2 phrases : ce que fait ce changement et pourquoi.>
 
-## 🔗 Related Issues
+## Points d'attention
 
-<!-- List any related issues or tickets. -->
-
-## 🧩 Type of Change
-
-- [ ] New feature
-- [ ] Bug fix
-- [ ] Refactoring (no functional changes)
-- [ ] Documentation update
-- [ ] Infrastructure / CI/CD
-
-## ✅ How to Test
-
-<!-- Describe how to test this change. -->
+- <risque ou décision non évidente>
 ```
 
-### 4. Synthesize and Write `pr.md`
-Synthesize the collected branch name, commits, file diffs, and template requirements:
-- **📝 Description**: Write a cohesive, high-level summary of what was accomplished and why. Focus on the logical changes and the business/functional impact.
-- **🧩 Type of Change**: Check the checkbox that best matches the nature of changes.
-- **✅ How to Test**: Document exact verification steps, terminal commands (e.g., `pytest`, `make test`), and any new test files created or modified.
-- **🔗 Related Issues**: Link any issues mentioned in the commits or branch.
+Omettre « Points d'attention » s'il n'y a rien de notable. Pas de liste exhaustive de fichiers.
 
-Save the completed template to a file named `pr.md` in the root of the workspace. Review it for professional formatting and completeness, then present the file path to the user.
+---
+
+## Étape 4 — Remplir le template
+
+**Description** — ce qui change et pourquoi, du point de vue de l'utilisateur du code. Décris des
+comportements, pas des noms de fonctions.
+
+**Lien du ticket** — la ligne `Fixes :` du template :
+
+| Argument reçu | Rendu |
+|---|---|
+| une URL | `Fixes : [ticket](<url>)` |
+| un identifiant (`ATL-42`) | `Fixes : ATL-42` |
+| rien | `Fixes : N/A` — et **préviens explicitement** l'utilisateur que la PR partira sans ticket |
+
+**Type de changement** — coche selon le diff. « Breaking change » seulement si un contrat existant
+(API, schéma, format de config, signature publique) change de façon incompatible.
+
+**Tests** — la règle est stricte :
+
+- Coché uniquement si la commande a réellement tourné dans cette session, avec son résultat
+  (`- [x] make test — 42 passés`).
+- Non lancée → case laissée vide, commande quand même listée sous « How to run » pour le relecteur.
+- Aucun test lancé et aucune commande trouvée dans le projet → `N/A`.
+- Ne coche jamais une case « au cas où ». Une case cochée est une affirmation vérifiable.
+
+**Fichiers modifiés** — les fichiers et répertoires structurants, pas le `git diff --name-only` brut.
+Ignore lockfiles, fichiers générés et renommages en masse.
+
+---
+
+## Étape 5 — Écrire et rendre la main
+
+Écris le markdown dans le fichier de l'étape 1, puis affiche :
+
+- le chemin du fichier,
+- le corps généré,
+- la commande prête à l'emploi : `gh pr create --body-file <chemin>`,
+- tout avertissement (ticket manquant, tests non lancés).
+
+---
+
+## Règles
+
+- N'invente jamais un test, un fichier, un lien ou une dépendance. Information manquante → `N/A`.
+- Ne lance ni lint ni tests : c'est le travail de l'appelant, et un skill de rédaction qui déclenche
+  une suite de tests de trois minutes est une mauvaise surprise.
+- Ne modifie aucun fichier du projet, y compris `.github/pull_request_template.md`.
+- Décris les résultats, pas les détails d'implémentation.
