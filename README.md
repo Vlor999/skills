@@ -14,7 +14,7 @@ skills/
     SKILL.md
   fill-pr-template/
     SKILL.md
-  grill-me/
+  grilling/
     SKILL.md
   grill-with-docs/
     SKILL.md
@@ -51,7 +51,7 @@ main skill file.
 | --- | --- |
 | `caveman` | Enables an ultra-compressed communication mode that keeps technical accuracy while reducing filler and token usage. |
 | `fill-pr-template` | Drafts a pull request description from the current branch diff, commits, and repository PR template. |
-| `grill-me` | Stress-tests a plan or design by asking focused questions until the decision tree is clear. |
+| `grilling` | Stress-tests a plan or design by asking focused questions until the decision tree is clear. |
 | `grill-with-docs` | Stress-tests a plan against project language and documentation, then updates `CONTEXT.md` and ADRs as decisions are made. |
 | `handoff` | Writes a compact handoff document so another agent or future session can continue the work. |
 | `llm-council` | Runs any decision or tradeoff through a council of 5 independent AI advisors, anonymous peer-review, and chairman synthesis. |
@@ -115,7 +115,7 @@ Use the tdd skill to implement this feature test-first.
 Or:
 
 ```text
-Use grill-me to challenge this design before we implement it.
+Use grilling to challenge this design before we implement it.
 ```
 
 If your agent supports a global skills directory, you can copy these skills
