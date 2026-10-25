@@ -1,0 +1,14 @@
+name: release
+on:
+  issues:
+    types: [labeled]
+permissions: write-all
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}
+      - run: echo "Released from issue ${{ github.event.issue.title }}"

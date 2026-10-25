@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: python-lib-license-audit
+expected_outcome: |
+  COMPLIANCE.md flags the GPL-3.0 vendored file inside the MIT package as the top blocking issue, the committed secret, the Stack Overflow snippet without CC BY-SA attribution and the release workflow risks, concludes the CRA does not apply to this non-commercial project, and no other file is modified.
+context:
+  scaffold_script: place-files.sh

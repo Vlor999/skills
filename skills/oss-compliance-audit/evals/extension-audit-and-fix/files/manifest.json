@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Chrome Tab Booster",
+  "version": "2.3.0",
+  "description": "Supercharge your tabs. Pro features with a subscription.",
+  "permissions": ["tabs", "storage", "history"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html" },
+  "icons": { "128": "chrome-logo-128.png" }
+}

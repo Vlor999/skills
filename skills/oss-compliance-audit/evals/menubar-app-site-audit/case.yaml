@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: menubar-app-site-audit
+expected_outcome: |
+  AUDIT.md reports, with evidence, the third-party requests of the site (Google Fonts, Google Analytics without consent), the Apple logo, the privacy claim contradicted by the telemetry code, the missing legal notice and the third-party notices missing from the app; no project file is modified.
+context:
+  scaffold_script: place-files.sh

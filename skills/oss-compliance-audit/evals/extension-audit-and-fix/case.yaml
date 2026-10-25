@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: extension-audit-and-fix
+expected_outcome: |
+  AUDIT.md lists the findings and the changes; the extension and site files are fixed: the Chrome trademark in the product name is flagged, the CRA is flagged as applicable because of the paid tier, the undisclosed telemetry is disclosed or made opt-in, a privacy policy and a legal notice exist without any invented personal identity, and Google Fonts is removed from the site.
+context:
+  scaffold_script: place-files.sh
