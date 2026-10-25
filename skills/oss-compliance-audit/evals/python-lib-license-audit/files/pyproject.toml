@@ -1,0 +1,7 @@
+[project]
+name = "tinyparse"
+version = "1.0.0"
+description = "Fast, tiny tokenizer for config files"
+license = { text = "MIT" }
+authors = [{ name = "Sam Rivera" }]
+requires-python = ">=3.9"

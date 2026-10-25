@@ -24,6 +24,12 @@ skills/
     SKILL.md
   llm-council/
     SKILL.md
+  oss-compliance-audit/
+    SKILL.md
+    CHECKLIST.md
+    REPORT.md
+    scripts/
+      site-requests.js
   tdd/
     SKILL.md
     deep-modules.md
@@ -55,6 +61,7 @@ main skill file.
 | `grill-with-docs` | Stress-tests a plan against project language and documentation, then updates `CONTEXT.md` and ADRs as decisions are made. |
 | `handoff` | Writes a compact handoff document so another agent or future session can continue the work. |
 | `llm-council` | Runs any decision or tradeoff through a council of 5 independent AI advisors, anonymous peer-review, and chairman synthesis. |
+| `oss-compliance-audit` | Audits an open source project (repo, website, shipped binaries, channels) for GDPR/ePrivacy, legal notice, consumer law, trademarks, licenses and notices, security policy, CRA and platform rules, then fixes what the user approves. |
 | `tdd` | Guides test-driven development with a red-green-refactor loop and behavior-focused tests. |
 | `tutor` | Explains codebase architecture, technological choices (ADRs), mathematical equations, and algorithms, teaches concepts with interactive quizzes, and exports/synchronizes explored knowledge to a Notion workspace. |
 | `write-a-rule` | Helps create or edit `.agents/rules/*.md` files with YAML frontmatter, scoped globs, and concise project-specific guidance. |

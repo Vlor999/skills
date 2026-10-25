@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+    <key>CFBundleIdentifier</key><string>dev.volta.app</string>
+    <key>CFBundleName</key><string>Volta</string>
+    <key>LSUIElement</key><true/>
+    <key>SUFeedURL</key><string>https://github.com/volta-dev/volta/releases/latest/download/appcast.xml</string>
+</dict>
+</plist>
