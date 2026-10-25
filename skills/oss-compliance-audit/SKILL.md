@@ -1,6 +1,6 @@
 ---
 name: oss-compliance-audit
-description: Audits an open source project (repository, website or landing page, distributed binaries, update and package channels) for legal and regulatory compliance, then fixes what the user approves. Covers GDPR and ePrivacy (third-party requests, cookies, privacy notice accuracy), French LCEN legal notice, trademarks (third-party logos, attribution), open source licenses and third-party notices in shipped binaries, disclaimers, security policy, the EU Cyber Resilience Act and platform rules. Use when the user asks whether their project, app, site or repo is "compliant", "legal", "conforme", respects "regulations" or "réglementation", needs legal notices, a privacy policy, license notices or a disclaimer, or before a public launch, rename or release.
+description: Audits an open source project (repository, website or landing page, distributed binaries, update and package channels) for legal and regulatory compliance, then fixes what the user approves. Covers GDPR and ePrivacy (third-party requests, cookies, privacy notice accuracy, personal data sent by the software), French LCEN legal notice, consumer law for paid tiers, trademarks (third-party logos, attribution), open source licenses and third-party notices in shipped binaries, disclaimers, security policy, the EU Cyber Resilience Act and platform rules. Use when the user asks whether their project, app, site or repo is "compliant", "legal", "conforme", respects "regulations" or "réglementation", needs legal notices, a privacy policy, license notices or a disclaimer, or before a public launch, rename or release.
 argument-hint: "[path or repo] [extra jurisdictions]"
 ---
 
@@ -39,7 +39,7 @@ Stop after the report and ask which findings to fix. Don't fix silently.
 ## 4. Fix
 
 - Follow the repository's own rules (CLAUDE.md, AGENTS.md, contributing guide, branch and commit conventions, required checks). They win over this skill.
-- Never invent the publisher's identity, address or email. Ask. An individual in France publishing non-professionally may stay anonymous towards the public by naming the host; a company or professional must give its identity.
+- Never invent the publisher's identity, address or email. Ask. An individual in France publishing non-professionally may stay anonymous towards the public by naming the host; a company or professional must give its identity. Selling anything (a paid tier, a subscription) makes the publisher a professional: then don't write an anonymous notice even if asked, explain why and leave marked placeholders.
 - Visible changes (site, app UI) get a local render or build shown to the user before commit.
 - One commit per area (fonts, logo, legal notice, notices, docs), so each can be reviewed or reverted alone.
 - Prefer removing a risk over documenting it: self-host a font rather than add a consent banner for it.

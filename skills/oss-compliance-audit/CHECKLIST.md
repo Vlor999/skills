@@ -2,7 +2,7 @@
 
 For each area: what to look for, the legal basis, and the usual fix. Severity hints are defaults; adjust them to the actual exposure (traffic, commercial use, what data is involved).
 
-Contents: 1 Website privacy · 2 Legal notice · 3 Trademarks · 4 Licenses and notices · 5 Disclaimers and claims · 6 Security policy and supply chain · 7 Cyber Resilience Act · 8 Platform and channel rules · 9 Contributions · 10 Personal data in the software · 11 Other markets
+Contents: 1 Website privacy · 2 Legal notice · 3 Trademarks · 4 Licenses and notices · 5 Disclaimers and claims · 6 Security policy and supply chain · 7 Cyber Resilience Act · 8 Platform and channel rules · 9 Contributions · 10 Personal data in the software · 11 Selling and consumer law · 12 Other markets
 
 Laws and dates change: when a finding rests on a date or threshold, say so and suggest the user checks the current text.
 
@@ -22,7 +22,9 @@ Usual fix: self-host fonts and scripts (ship the font license next to the files)
 
 Look for: a "Legal notice" / "Mentions légales" page or section naming the publisher and the host.
 
-Basis: France, Loi pour la confiance dans l'économie numérique (LCEN, 2004): a professional publisher gives its identity, address, contact and the host's details; a non-professional individual may stay anonymous towards the public by giving only the host's name and address (and phone number when available), provided the host has the publisher's identity. Germany: Impressum duty (DDG §5) for business-like sites aimed at Germany.
+Basis: France, Loi pour la confiance dans l'économie numérique (LCEN, 2004): a professional publisher (anyone selling something through the project: a paid tier, paid support, licences, ads revenue) gives its identity, address, contact and the host's details; a non-professional individual may stay anonymous towards the public by giving only the host's name and address (and phone number when available), provided the host has the publisher's identity. Germany: Impressum duty (DDG §5) for business-like sites aimed at Germany.
+
+Anonymity is only open to non-professionals. If the project has any commercial activity (section 11), do not write an anonymous notice even if the user asks for one: explain why, and leave clearly marked placeholders for the identity (name or trade name, address, email, phone, SIREN or registration number, VAT number if any).
 
 Usual fix: a compact block in the footer or a dedicated page: publisher (name, or "individual, non-professional publisher" plus a contact channel the user chooses), host (for GitHub Pages: GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA). Ask the user before publishing any name, email or address. 🟠 when missing on a French-published site.
 
@@ -89,12 +91,29 @@ Usual fix: two or three lines in `CONTRIBUTING.md`. 🟡.
 
 ## 10. Personal data in the software itself
 
-Look for: telemetry, crash reporting, accounts, sync, logs that contain personal data, third-party SDKs inside the app, what is sent to which processor and country.
+Look for: telemetry, crash reporting, accounts, sync, logs that contain personal data, third-party SDKs inside the app, what is sent to which processor and country. Read the payload field by field: identifiers that look technical are often personal data (the computer or device name usually contains the owner's name, hardware serials, IP addresses, visited URLs and page titles, file paths with the user name).
 
 Basis: GDPR in full (legal basis, information, data minimisation, processor agreements, transfers, retention, user rights).
 
 Usual fix: opt-in telemetry, a privacy policy describing exactly what is collected, removal of unnecessary SDKs. 🔴 for undisclosed collection.
 
-## 11. Other markets
+## 11. Selling and consumer law
+
+Applies as soon as the project sells something to consumers: a paid tier, a subscription, paid licences, in-app purchases. Donations alone do not count. This also makes the publisher a professional for sections 2 and 7.
+
+Look for:
+- Who sells: the developer directly (Stripe, store payments) or a merchant of record (Paddle, Lemon Squeezy) that becomes the seller and handles VAT.
+- Terms of sale and pre-contract information: identity of the seller, essential features, total price including taxes, duration and renewal, how to cancel, withdrawal right, legal guarantee of conformity, mediator, applicable law.
+- Withdrawal: 14 days for distance contracts; for digital content or services supplied immediately, the consumer must expressly agree to start before the end of the period and acknowledge losing the right, otherwise the right stays.
+- Subscriptions: online cancellation as easy as subscribing (in France, the "résiliation en trois clics" feature).
+- Consumer mediator: in France every professional selling to consumers must offer a free mediator and name it.
+- VAT on digital services sold to EU consumers (rate of the buyer's country, OSS declaration) unless a merchant of record handles it.
+- Store trader status: app and extension stores in the EU ask sellers to declare themselves as traders and show their contact details (Digital Services Act art. 30).
+
+Basis: EU Consumer Rights Directive 2011/83/EU (Code de la consommation L111-1, L221-5, L221-18, L221-28 in France), consumer mediation (L612-1), EU VAT rules for electronic services, Digital Services Act art. 30.
+
+Usual fix: terms of sale and a pricing section with tax-inclusive prices and renewal terms, the withdrawal waiver checkbox at checkout, a cancellation link, a named mediator, placeholders for the seller's identity; suggest a merchant of record when the user wants to avoid running the VAT and consumer contract themselves (it does not make them anonymous). 🔴 when paid features are sold with no terms and no seller identity.
+
+## 12. Other markets
 
 If the project targets them, add: US state privacy laws (CCPA/CPRA for businesses above thresholds), UK GDPR, Swiss nFADP, accessibility duties (European Accessibility Act for commercial consumer products and services since 28 June 2025), export control of cryptography (publicly available open source is generally exempt under US EAR, but check before shipping to embargoed countries).
