@@ -45,17 +45,36 @@ skills/
     SKILL.md
   write-a-skill/
     SKILL.md
+plugins/
+  election-radar/
+    .claude-plugin/plugin.json
+    README.md
+    LICENSE
+    skills/
+      election-radar/
+        SKILL.md
+        AUTOMATIONS.md
+        DATA-FORMAT.md
+        PROJECT-RULES.md
+        SOURCES.md
+        STATE-TEMPLATE.md
+        assets/index-template.html
+        scripts/*.py
+.claude-plugin/
+  marketplace.json
 ```
 
 Each skill lives in its own directory. The required entry point is `SKILL.md`.
 Some skills also include supporting documentation that is referenced from the
-main skill file.
+main skill file. Skills distributed as Claude plugins live under `plugins/`,
+listed in the repository marketplace (`.claude-plugin/marketplace.json`).
 
 ## Available Skills
 
 | Skill | Purpose |
 | --- | --- |
 | `caveman` | Enables an ultra-compressed communication mode that keeps technical accuracy while reducing filler and token usage. |
+| `election-radar` | Sets up a sourced election-watch workspace (archived official documents, state of play, interactive index page, glossary, scheduled sync automations) and serves as the discussion method inside it. |
 | `fill-pr-template` | Drafts a pull request description from the current branch diff, commits, and repository PR template. |
 | `grilling` | Stress-tests a plan or design by asking focused questions until the decision tree is clear. |
 | `grill-with-docs` | Stress-tests a plan against project language and documentation, then updates `CONTEXT.md` and ADRs as decisions are made. |
@@ -128,6 +147,43 @@ Use grilling to challenge this design before we implement it.
 If your agent supports a global skills directory, you can copy these skills
 there instead of copying them into each project. Keep the full skill directory,
 not only `SKILL.md`, because some skills depend on sibling reference files.
+
+## Using `election-radar` In Claude Desktop
+
+`election-radar` needs four things: local files and a shell (archive, scripts),
+web search, the Artifact tool (live page) and a scheduler (two daily
+automations). Claude Desktop in **Cowork** mode provides all four, so that is
+the recommended setup.
+
+1. **Install the skill.** Either install the plugin from this repository's
+   marketplace (`claude plugin marketplace add Vlor999/skills`, then
+   `claude plugin install election-radar@vlor999-skills`), or zip the
+   `plugins/election-radar/skills/election-radar/` folder (the folder itself at
+   the root of the zip) and upload it in *Settings → Capabilities → Skills*.
+   Enable code execution and web search in the same settings.
+2. **Init in Cowork.** Open a Cowork session, give it access to the folder that
+   will hold the workspace (default `~/Desktop/<Election> <Year>`), and ask for
+   it in plain words, e.g. *"Set up a radar for the 2027 French presidential
+   election, in French"*. The skill asks for the missing parameters in one
+   message, builds the folder, publishes the page and creates the automations.
+3. **Automations.** In Cowork they become two scheduled tasks: *local sync*
+   (default 07:15) then *page update* (default 07:45). Scheduled tasks only run
+   while the computer is awake and Claude Desktop is open, so pick times when
+   that is the case.
+4. **Discuss.** Two options:
+   - **In Cowork, on the workspace folder (recommended).** Claude reads the
+     up-to-date state of play and `_data/`, and can archive new sources and
+     grow the glossary on disk.
+   - **In a Claude Project.** Paste the generated instructions file
+     (`instructions-projet.md` / `project-instructions.md`) into the project
+     instructions and add the state-of-play file (`00 - …md`) as a project
+     file. Project files are static copies: re-upload the state of play after
+     the automations change it, and expect glossary or archive updates to be
+     limited to what the session can write.
+5. **Live page.** The published artifact reads its data from its database,
+   which the *page update* task rewrites each morning, so the link stays the
+   same and never needs republishing. The local `index.html` in the folder
+   works offline as a fallback.
 
 ## Security Model
 
