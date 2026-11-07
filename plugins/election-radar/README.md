@@ -79,6 +79,41 @@ tasks run only while the computer is awake and Claude Desktop is open.
 Start with a request such as: *"Set up a radar for the 2027 French presidential
 election, in French."*
 
+## Example requests
+
+- *"Set up a radar for the 2027 French presidential election, in French."*
+- *"Track the 2026 US midterms in English, local folder ~/Documents/Midterms."*
+- Inside the workspace: *"What does structural deficit mean, and does
+  candidate X's savings plan hold up against it?"*
+
+## Limitations
+
+- Analyses and glossary definitions are written by Claude and can be wrong;
+  every figure links to its source so it can be checked.
+- The left-right order of candidates is indicative and stated as such.
+- The skill never recommends a vote.
+- Automations need a scheduler (Cowork scheduled tasks, Claude Code routines
+  or cron); without one, the prompts are saved to the workspace to run by hand.
+- The live page needs the Artifact tool; otherwise only the local
+  `index.html` is produced.
+
+## Support
+
+Questions and bug reports: <https://github.com/Vlor999/skills/issues>.
+
+## Security
+
+Report vulnerabilities privately, as described in [SECURITY.md](SECURITY.md).
+
+## Privacy
+
+See the [Privacy policy](PRIVACY.md): what the plugin stores, where, and which
+third parties it contacts.
+
+## Terms
+
+See the [Terms of use](TERMS.md).
+
 ## License
 
 MIT, see [LICENSE](LICENSE).
