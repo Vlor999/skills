@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="__LANG__">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>__TITLE__</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Election radar: left-right axis of candidates (bubble = poll average), detail card,
+   runoffs or seats, budget context, poll table, method, changelog. All text comes from data. */
+:root{
+  --bg:#eef1f5; --surface:#ffffff; --ink:#141a2b; --muted:#566079; --line:#d3d9e4;
+  --accent:#3346d3; --warn:#a2580a; --chip:#e3e8f2;
+  --display:"Bricolage Grotesque","Avenir Next",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1320; --surface:#181e2e; --ink:#e7ebf5; --muted:#9aa4bd; --line:#2b3348;
+  --accent:#8f9bff; --warn:#e8a25a; --chip:#232b40; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f1320; --surface:#181e2e; --ink:#e7ebf5; --muted:#9aa4bd; --line:#2b3348;
+  --accent:#8f9bff; --warn:#e8a25a; --chip:#232b40; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(28px,4.4vw,44px);font-weight:800;line-height:1.05}
+h2{font-size:22px;font-weight:700} h3{font-size:16px;font-weight:700}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header .lede{max-width:68ch;color:var(--muted);margin:10px 0 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.pill{font-family:var(--mono);font-size:12px;background:var(--chip);border-radius:999px;padding:3px 10px;color:var(--ink)}
+.pill.live{color:var(--accent)}
+section{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;min-width:0}
+.controls{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.seg{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 12px;font:500 13px var(--body);cursor:pointer}
+.seg[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.axisbox{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.axisbox svg{display:block;min-width:820px;width:100%;height:auto}
+svg text{font-family:var(--body);fill:var(--ink)}
+svg .small{font-size:11px;fill:var(--muted)}
+svg .pct{font-family:var(--mono);font-weight:500;fill:#fff;font-size:13px;pointer-events:none}
+svg .pct.out{fill:var(--ink)}
+svg .nm{font-size:12px;font-weight:600}
+.bub{cursor:pointer}
+.bub circle.dot{stroke:var(--surface);stroke-width:2}
+.bub.sel circle.dot{stroke:var(--ink);stroke-width:3}
+.bub:hover circle.dot{stroke:var(--ink)}
+.bub:focus{outline:none}.bub:focus-visible circle.dot{stroke:var(--accent);stroke-width:3}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.detail{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:22px}
+@media (max-width:760px){.detail{grid-template-columns:1fr}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.dhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.swatch{width:14px;height:14px;border-radius:50%;flex:none}
+.big{font-family:var(--mono);font-size:30px;font-weight:500;font-variant-numeric:tabular-nums}
+.kv{display:flex;flex-direction:column;gap:2px}
+.src{font-size:12.5px;color:var(--muted)} .src a{color:var(--muted)}
+ul.props{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px}
+ul.props li .src{display:block}
+.analysis{border-left:3px solid var(--warn);padding:2px 0 2px 12px}
+.analysis .eyebrow{color:var(--warn)}
+.analysis p{margin:4px 0 0}
+.cour{background:var(--chip);border-radius:8px;padding:12px}
+.cour h4{margin:0 0 4px;font:700 15px var(--display)}
+.cour p{margin:6px 0 0;font-size:13.5px}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links a{font-size:13px;background:var(--chip);border-radius:6px;padding:3px 9px;text-decoration:none;color:var(--ink)}
+.links a:hover{text-decoration:underline}
+.empty{color:var(--muted);font-size:14px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+td.n{font-family:var(--mono);text-align:right;white-space:nowrap}
+.tscroll{overflow-x:auto}
+.duel{display:grid;grid-template-columns:170px minmax(0,1fr);gap:10px;align-items:center;margin:6px 0}
+@media (max-width:560px){.duel{grid-template-columns:1fr}}
+.bar{display:flex;height:22px;border-radius:5px;overflow:hidden;font:500 12px var(--mono)}
+.bar span{display:flex;align-items:center;padding:0 7px;color:#fff;white-space:nowrap}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.ctx{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px}
+.ctx .v{font-family:var(--mono);font-size:22px}
+.mini{display:flex;flex-direction:column;gap:4px;font-size:13px}
+.mini p{margin:0}
+.mini .row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding:3px 0}
+.mini .row span:last-child{font-family:var(--mono);white-space:nowrap}
+.log li{font-size:13.5px}
+.gsearch{width:100%;max-width:360px;font:15px var(--body);padding:7px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.glist{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:12px;margin-top:12px}
+.gterm{background:var(--chip);border-radius:8px;padding:12px;min-width:0;scroll-margin-top:16px}
+.gterm:target{outline:2px solid var(--accent)}
+.gterm h3{font-size:15px}
+.gterm p{margin:6px 0 0;font-size:13.5px}
+.gterm .al{font-size:12.5px;color:var(--muted);font-style:italic}
+.gterm .cands{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.gterm .cands button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:1px 9px;font:12.5px var(--body);cursor:pointer}
+a.gl{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;cursor:help}
+/* Sub-page navigation: a ☰ menu at the top left, one sub-page per entry, chosen by the URL hash. */
+[hidden]{display:none!important}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin:-28px 0 -8px;padding:12px 0;border-bottom:1px solid var(--line)}
+.topnav{position:relative;display:flex;align-items:center;gap:12px}
+.burger{width:40px;height:40px;flex:none;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);display:inline-flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;cursor:pointer;padding:0}
+.burger span{display:block;width:18px;height:2px;background:currentColor;border-radius:2px;transition:transform .2s,opacity .2s}
+.burger[aria-expanded="true"] span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+.burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.crumb{display:flex;flex-direction:column;min-width:0}
+.crumb .eyebrow{font-size:10.5px}
+.crumb b{font:700 16px var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.navmenu{position:absolute;top:calc(100% + 8px);left:0;width:min(290px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px;box-shadow:0 12px 32px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:2px}
+.navmenu a{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;border-radius:7px;color:var(--ink);text-decoration:none;font-size:14.5px}
+.navmenu a:hover,.navmenu a:focus-visible{background:var(--chip);outline:none}
+.navmenu a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.navmenu .n{font:12px var(--mono);opacity:.75}
+#detail{scroll-margin-top:72px}
+.gterm{scroll-margin-top:72px}
+@media (prefers-reduced-motion:reduce){.burger span{transition:none}}
+.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+@media (max-width:760px){.flow{grid-template-columns:1fr}}
+.flowh{grid-column:1/-1;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.step{background:var(--chip);border-radius:8px;padding:10px 12px;min-width:0}
+.step .k{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:3px}
+.step.risk .k{color:var(--warn)}
+.step p{margin:0;font-size:13.5px}
+footer{font-size:12.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topbar">
+  <nav class="topnav" id="topnav">
+    <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="navmenu"><span></span><span></span><span></span></button>
+    <div class="crumb"><span class="eyebrow" id="crumbTitle"></span><b id="crumb"></b></div>
+    <div class="navmenu" id="navmenu" hidden></div>
+  </nav>
+</div>
+<header data-view="radar">
+  <div class="eyebrow" id="eyebrow"></div>
+  <h1 id="title"></h1>
+  <p class="lede" id="lede"></p>
+  <div class="meta"><span class="pill" id="asof"></span><span class="pill live" id="livepill"></span><span class="pill" id="npolls"></span></div>
+</header>
+
+<section aria-labelledby="h-axis" data-view="radar">
+  <h2 id="h-axis"></h2>
+  <div class="panel">
+    <div class="controls" id="scen"></div>
+    <div class="axisbox"><svg id="axis" viewBox="0 0 1000 360" role="img"></svg></div>
+    <p class="hint" id="axishint"></p>
+  </div>
+</section>
+
+<section aria-labelledby="h-detail" data-view="radar">
+  <h2 id="h-detail" class="eyebrow"></h2>
+  <div class="panel" id="detail"></div>
+</section>
+
+<section aria-labelledby="h-second" id="sec-second" data-view="second">
+  <h2 id="h-second"></h2>
+  <div class="panel" id="second"></div>
+</section>
+
+<section aria-labelledby="h-ctx" data-view="ctx">
+  <h2 id="h-ctx"></h2>
+  <div class="ctx" id="ctx"></div>
+</section>
+
+<section aria-labelledby="h-polls" data-view="polls">
+  <h2 id="h-polls"></h2>
+  <div class="panel tscroll" id="polls"></div>
+</section>
+
+<section aria-labelledby="h-gloss" id="sec-gloss" data-view="gloss">
+  <h2 id="h-gloss"></h2>
+  <div class="panel"><input class="gsearch" id="gsearch" type="search" autocomplete="off"><div class="glist" id="glist"></div></div>
+</section>
+
+<section aria-labelledby="h-method" data-view="method">
+  <h2 id="h-method"></h2>
+  <div class="panel grid2" id="method"></div>
+</section>
+
+<section aria-labelledby="h-log" data-view="method">
+  <h2 id="h-log"></h2>
+  <div class="panel"><ul class="log" id="log" style="margin:0;padding-left:18px"></ul></div>
+</section>
+
+<footer id="footer"></footer>
+</div>
+
+<script>
+// Data is injected by scripts/render_index.py (local copy) or written by the agent before publishing.
+const BASE_DATA = /*__DATASET__*/null;
+const BASE_CANDS = /*__CANDIDATES__*/null;
+const BASE_GLOSS = /*__GLOSSARY__*/null;
+
+// Interface labels. meta.labels in the dataset overrides any key, so any language works.
+const LABELS = {
+  fr:{vRadar:"L'échiquier et les fiches",vSecond:"Second tour",vSeats:"Sièges",vCtx:"Contexte budgétaire",vPolls:"Sondages retenus",vGloss:"Glossaire",vMethod:"Méthode et journal",menu:"Ouvrir le menu des sous-pages",nav:"Sous-pages",slugs:{radar:"radar",second:"second-tour",ctx:"contexte",polls:"sondages",gloss:"glossaire",method:"methode"},gloss:"Glossaire",glossSearch:"Chercher un terme…",glossEmpty:"Aucun terme pour l'instant : il se remplit au fil des questions.",glossQ:"Né de la question",glossSee:"Voir aussi",glossCands:"Candidats concernés",nTerms:"termes",mech:"Comment c'est censé marcher",m1:"La mesure",m2:"L'effet visé",m3:"Ce qui doit marcher",m4:"Le risque",mechNote:"Mesure sourcée, effet annoncé par le candidat ; condition et risque : analyse à challenger",claimed:"(revendiqué)",axis:"L'échiquier, sondages du 1er tour",axisHint:"Cliquez sur une bulle pour ouvrir la fiche. Taille et pourcentage : moyenne des dernières vagues de chaque institut, dans les hypothèses du scénario choisi. L'ordre gauche-droite est indicatif.",left:"◀ gauche",right:"droite ▶",all:"Toutes les hypothèses",card:"Fiche",second:"Second tour testé",seats:"Projections en sièges",ctx:"La contrainte que tout programme doit affronter",polls:"Sondages retenus",method:"Méthode et limites",log:"Journal des mises à jour",asof:"Données au",checked:"Vérifié le",daily:"Mise à jour quotidienne",offline:"Base injoignable : données embarquées",nPolls:"sondages",nHyps:"hypothèses",pollster:"Institut",client:"Commanditaire",field:"Terrain",pub:"Publié",sample:"Échantillon",hyps:"Hyp.",notice:"Source",program:"Programme et documents",ideas:"Propositions clés",analysis:"Analyse : idée, faisabilité, dynamique",idea:"Idée",feas:"Faisabilité",dyn:"Dynamique",school:"Courant de pensée",round1:"1er tour",avgOf:"moyenne de",pollsters:"institut(s)",range:"plage toutes hypothèses",notTested:"non testé dans ce scénario",noProgram:"Pas de programme complet publié dans les sources consultées.",status:{full:"Programme complet",partial:"Propositions partielles",none:"Pas de programme publié"},declared:"Candidature déclarée",potential:"Candidature non déclarée",source:"Source",docDate:"document du",footer:"Page tenue par un agent. Chaque chiffre renvoie à sa source ; signalez une erreur."},
+  en:{vRadar:"The field and candidate cards",vSecond:"Runoff",vSeats:"Seats",vCtx:"Budget context",vPolls:"Polls used",vGloss:"Glossary",vMethod:"Method and log",menu:"Open the page menu",nav:"Sub-pages",slugs:{radar:"radar",second:"runoff",ctx:"context",polls:"polls",gloss:"glossary",method:"method"},gloss:"Glossary",glossSearch:"Search a term…",glossEmpty:"No terms yet: it fills up as questions come in.",glossQ:"Asked in",glossSee:"See also",glossCands:"Candidates",nTerms:"terms",mech:"How it is supposed to work",m1:"The measure",m2:"The intended effect",m3:"What must hold",m4:"The risk",mechNote:"Sourced measure, effect as claimed by the candidate; condition and risk: analysis to challenge",claimed:"(claimed)",axis:"The field, first-round polls",axisHint:"Click a bubble to open the card. Size and percentage: average of each pollster's latest wave, within the selected scenario. Left-right order is indicative.",left:"◀ left",right:"right ▶",all:"All scenarios",card:"Candidate card",second:"Tested runoffs",seats:"Seat projections",ctx:"The constraint every platform must face",polls:"Polls used",method:"Method and limits",log:"Update log",asof:"Data as of",checked:"Checked on",daily:"Daily update",offline:"Database unreachable: embedded data",nPolls:"polls",nHyps:"scenarios",pollster:"Pollster",client:"Client",field:"Fieldwork",pub:"Published",sample:"Sample",hyps:"Scen.",notice:"Source",program:"Platform and documents",ideas:"Key proposals",analysis:"Analysis: idea, feasibility, dynamics",idea:"Idea",feas:"Feasibility",dyn:"Dynamics",school:"School of thought",round1:"First round",avgOf:"average of",pollsters:"pollster(s)",range:"range across scenarios",notTested:"not tested in this scenario",noProgram:"No full platform published in the sources checked.",status:{full:"Full platform",partial:"Partial proposals",none:"No platform published"},declared:"Declared candidate",potential:"Not declared",source:"Source",docDate:"document dated",footer:"Page maintained by an agent. Every figure links to its source; report errors."},
+  es:{vRadar:"El tablero y las fichas",vSecond:"Segunda vuelta",vSeats:"Escaños",vCtx:"Contexto presupuestario",vPolls:"Encuestas utilizadas",vGloss:"Glosario",vMethod:"Método y registro",menu:"Abrir el menú de subpáginas",nav:"Subpáginas",slugs:{radar:"radar",second:"segunda-vuelta",ctx:"contexto",polls:"encuestas",gloss:"glosario",method:"metodo"},gloss:"Glosario",glossSearch:"Buscar un término…",glossEmpty:"Aún no hay términos: se completa con cada pregunta.",glossQ:"Surgió de la pregunta",glossSee:"Ver también",glossCands:"Candidatos",nTerms:"términos",mech:"Cómo se supone que funciona",m1:"La medida",m2:"El efecto buscado",m3:"Lo que debe cumplirse",m4:"El riesgo",mechNote:"Medida con fuente, efecto según el candidato; condición y riesgo: análisis a discutir",claimed:"(reivindicado)",axis:"El tablero, encuestas de primera vuelta",axisHint:"Haga clic en una burbuja para abrir la ficha. Tamaño y porcentaje: media de la última oleada de cada instituto en el escenario elegido. El orden izquierda-derecha es indicativo.",left:"◀ izquierda",right:"derecha ▶",all:"Todas las hipótesis",card:"Ficha",second:"Segunda vuelta",seats:"Proyección de escaños",ctx:"La restricción que todo programa debe afrontar",polls:"Encuestas utilizadas",method:"Método y límites",log:"Registro de actualizaciones",asof:"Datos a",checked:"Verificado el",daily:"Actualización diaria",offline:"Base inaccesible: datos integrados",nPolls:"encuestas",nHyps:"hipótesis",pollster:"Instituto",client:"Cliente",field:"Trabajo de campo",pub:"Publicado",sample:"Muestra",hyps:"Hip.",notice:"Fuente",program:"Programa y documentos",ideas:"Propuestas clave",analysis:"Análisis: idea, viabilidad, dinámica",idea:"Idea",feas:"Viabilidad",dyn:"Dinámica",school:"Corriente de pensamiento",round1:"Primera vuelta",avgOf:"media de",pollsters:"instituto(s)",range:"rango en todas las hipótesis",notTested:"no probado en este escenario",noProgram:"Sin programa completo publicado en las fuentes consultadas.",status:{full:"Programa completo",partial:"Propuestas parciales",none:"Sin programa publicado"},declared:"Candidatura declarada",potential:"Candidatura no declarada",source:"Fuente",docDate:"documento del",footer:"Página mantenida por un agente. Cada cifra enlaza a su fuente; señale cualquier error."},
+  de:{vRadar:"Spielfeld und Steckbriefe",vSecond:"Stichwahl",vSeats:"Sitze",vCtx:"Haushaltslage",vPolls:"Verwendete Umfragen",vGloss:"Glossar",vMethod:"Methode und Protokoll",menu:"Menü der Unterseiten öffnen",nav:"Unterseiten",slugs:{radar:"radar",second:"stichwahl",ctx:"kontext",polls:"umfragen",gloss:"glossar",method:"methode"},gloss:"Glossar",glossSearch:"Begriff suchen…",glossEmpty:"Noch keine Begriffe: das Glossar wächst mit jeder Frage.",glossQ:"Entstanden aus der Frage",glossSee:"Siehe auch",glossCands:"Kandidaten",nTerms:"Begriffe",mech:"Wie es funktionieren soll",m1:"Die Maßnahme",m2:"Die beabsichtigte Wirkung",m3:"Was gelten muss",m4:"Das Risiko",mechNote:"Belegte Maßnahme, Wirkung laut Kandidat; Bedingung und Risiko: Analyse zur Diskussion",claimed:"(beansprucht)",axis:"Das Spielfeld, Umfragen",axisHint:"Klicken Sie auf eine Blase, um die Karte zu öffnen. Größe und Prozent: Mittel der letzten Welle jedes Instituts im gewählten Szenario. Die Links-Rechts-Reihenfolge ist nur ein Anhaltspunkt.",left:"◀ links",right:"rechts ▶",all:"Alle Szenarien",card:"Steckbrief",second:"Stichwahl",seats:"Sitzprojektionen",ctx:"Die Grenze, an der jedes Programm gemessen wird",polls:"Verwendete Umfragen",method:"Methode und Grenzen",log:"Änderungsprotokoll",asof:"Stand",checked:"Geprüft am",daily:"Tägliche Aktualisierung",offline:"Datenbank nicht erreichbar: eingebettete Daten",nPolls:"Umfragen",nHyps:"Szenarien",pollster:"Institut",client:"Auftraggeber",field:"Feldzeit",pub:"Veröffentlicht",sample:"Stichprobe",hyps:"Szen.",notice:"Quelle",program:"Programm und Dokumente",ideas:"Kernvorschläge",analysis:"Analyse: Idee, Machbarkeit, Dynamik",idea:"Idee",feas:"Machbarkeit",dyn:"Dynamik",school:"Denkschule",round1:"Erster Wahlgang",avgOf:"Mittel von",pollsters:"Institut(en)",range:"Spanne über alle Szenarien",notTested:"in diesem Szenario nicht abgefragt",noProgram:"Kein vollständiges Programm in den geprüften Quellen.",status:{full:"Vollständiges Programm",partial:"Teilvorschläge",none:"Kein Programm veröffentlicht"},declared:"Kandidatur erklärt",potential:"Kandidatur nicht erklärt",source:"Quelle",docDate:"Dokument vom",footer:"Von einem Agenten gepflegte Seite. Jede Zahl verlinkt ihre Quelle; Fehler bitte melden."}
+};
+
+let DATA = BASE_DATA, CANDS = (BASE_CANDS && BASE_CANDS.list) || [], GLOSS = (BASE_GLOSS && BASE_GLOSS.terms) || [], scen = "all", selected = null, gq = "";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const lang = () => (DATA && DATA.meta && DATA.meta.lang) || document.documentElement.lang || "en";
+const T = k => { const o = (DATA && DATA.meta && DATA.meta.labels) || {}; if (o[k] != null) return o[k];
+  const base = LABELS[lang().slice(0,2)] || LABELS.en; return base[k] ?? LABELS.en[k] ?? k; };
+const fmt = v => (Math.round(v*10)/10).toLocaleString(lang(), {maximumFractionDigits:1});
+const fdate = d => { try { return new Date(d).toLocaleDateString(lang(), {day:"numeric",month:"long",year:"numeric"}); } catch(e){ return d; } };
+const link = s => s && s.u ? `<a href="${esc(s.u)}" target="_blank" rel="noopener">${esc(s.t || s.u)}</a>` : "";
+const byId = id => CANDS.find(c => c.id === id);
+const scenarios = () => (DATA.meta.scenarios || []);
+
+function match(sid, r){
+  if (sid === "all") return true;
+  const s = scenarios().find(x => x.id === sid); if (!s) return true;
+  return (s.with||[]).every(id => r[id] != null) && (s.without||[]).every(id => r[id] == null);
+}
+function stats(id){
+  const per = [], rows = []; let min = Infinity, max = -Infinity;
+  for (const p of DATA.polls){
+    const vals = p.hyps.filter(h => match(scen, h.r) && h.r[id] != null).map(h => h.r[id]);
+    if (vals.length){ const m = vals.reduce((a,b)=>a+b,0)/vals.length; per.push(m); rows.push({p, m, k:vals.length}); }
+    for (const h of p.hyps) if (h.r[id] != null){ min = Math.min(min,h.r[id]); max = Math.max(max,h.r[id]); }
+  }
+  return {mean: per.length ? per.reduce((a,b)=>a+b,0)/per.length : null, n: per.length, rows,
+          min: isFinite(min)?min:null, max: isFinite(max)?max:null};
+}
+
+// Glossary: underline the first occurrence of each known term in a card, linked to its entry.
+const reEsc = x => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const fold = x => String(x||"").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+let GRE = null, GMAP = {};
+function buildGloss(){
+  GMAP = {}; const names = [];
+  GLOSS.forEach(t => [t.term, ...(t.aliases||[])].forEach(n => { if (n && n.length > 2){ GMAP[esc(n).toLowerCase()] = t; names.push(esc(n)); } }));
+  names.sort((a,b) => b.length - a.length);
+  GRE = names.length ? new RegExp(`(?<![\\p{L}\\p{N}])(${names.map(reEsc).join("|")})(?![\\p{L}\\p{N}])`, "giu") : null;
+}
+function gl(text, used){ // text must already be escaped
+  if (!GRE) return text;
+  return text.replace(GRE, m => { const t = GMAP[m.toLowerCase()]; if (!t || used.has(t.id)) return m; used.add(t.id);
+    return `<a class="gl" href="#g-${esc(t.id)}" title="${esc(t.def)}">${m}</a>`; });
+}
+function drawGloss(){
+  $("#h-gloss").textContent = T("gloss"); $("#gsearch").placeholder = T("glossSearch");
+  const names = Object.fromEntries(GLOSS.map(t => [t.id, t.term]));
+  const q = fold(gq);
+  const list = GLOSS.slice().sort((a,b) => fold(a.term).localeCompare(fold(b.term)))
+    .filter(t => !q || fold([t.term, ...(t.aliases||[]), t.def].join(" ")).includes(q));
+  $("#glist").innerHTML = !GLOSS.length ? `<p class="empty">${esc(T("glossEmpty"))}</p>` : list.map(t => {
+    const qs = t.questions||[], firstQ = qs[0];
+    return `<div class="gterm" id="g-${esc(t.id)}"><h3>${esc(t.term)}</h3>${(t.aliases||[]).length ? `<div class="al">${esc(t.aliases.join(", "))}</div>` : ""}
+      <p>${esc(t.def)}</p>
+      <p class="src">${(t.src||[]).map(link).join(" · ")}</p>
+      ${(t.see||[]).length ? `<p class="src">${esc(T("glossSee"))} : ${t.see.map(i => `<a href="#g-${esc(i)}">${esc(names[i] || i)}</a>`).join(", ")}</p>` : ""}
+      ${firstQ ? `<p class="src">${esc(T("glossQ"))} : « ${esc(firstQ.q)} » (${esc(fdate(firstQ.date))})${qs.length > 1 ? ` · +${qs.length-1}` : ""}</p>` : ""}
+      ${(t.related||[]).filter(byId).length ? `<div class="cands">${t.related.filter(byId).map(id => `<button data-c="${esc(id)}">${esc(byId(id).short || byId(id).name)}</button>`).join("")}</div>` : ""}</div>`; }).join("");
+  $("#glist").querySelectorAll("button[data-c]").forEach(b => b.addEventListener("click", () => {
+    selected = b.dataset.c; drawAxis(); drawDetail(); pendingTarget = "detail"; location.hash = slug("radar"); }));
+}
+$("#gsearch").addEventListener("input", e => { gq = e.target.value; drawGloss(); });
+
+function drawStatic(){
+  const m = DATA.meta;
+  document.title = m.title; document.documentElement.lang = lang();
+  $("#eyebrow").textContent = m.eyebrow || `${m.election} ${m.year} · ${m.country}`;
+  $("#title").textContent = m.title; $("#lede").textContent = m.lede || "";
+  $("#h-axis").textContent = T("axis"); $("#axishint").textContent = T("axisHint");
+  $("#h-detail").textContent = T("card");
+  $("#h-second").textContent = m.system === "two-round" ? T("second") : T("seats");
+  $("#h-ctx").textContent = T("ctx"); $("#h-polls").textContent = T("polls");
+  $("#h-method").textContent = T("method"); $("#h-log").textContent = T("log");
+  $("#footer").textContent = m.footer || T("footer");
+  if (!$("#livepill").textContent) $("#livepill").textContent = T("daily");
+  $("#scen").innerHTML = [{id:"all",label:T("all")}, ...scenarios()].map(s =>
+    `<button class="seg" data-s="${esc(s.id)}" aria-pressed="${s.id===scen}">${esc(s.label)}</button>`).join("");
+  document.querySelectorAll(".seg").forEach(b => b.addEventListener("click", () => { scen = b.dataset.s;
+    document.querySelectorAll(".seg").forEach(x => x.setAttribute("aria-pressed", x===b ? "true" : "false")); drawAxis(); drawDetail(); }));
+}
+
+function drawAxis(){
+  const svg = $("#axis"), L = 50, R = 950, n = CANDS.length, step = n > 1 ? (R-L)/(n-1) : 0, ay = 318; let g = "";
+  const fams = []; CANDS.forEach((c,i) => { const f = fams[fams.length-1]; if (f && f.name === c.family) f.end = i; else fams.push({name:c.family,start:i,end:i}); });
+  g += `<line x1="${L-20}" x2="${R+20}" y1="${ay}" y2="${ay}" stroke="var(--line)" stroke-width="2"/>`;
+  g += `<text x="${L-20}" y="${ay-8}" class="small">${esc(T("left"))}</text><text x="${R+20}" y="${ay-8}" class="small" text-anchor="end">${esc(T("right"))}</text>`;
+  fams.forEach((f,k) => { const x0 = L+f.start*step, x1 = L+f.end*step;
+    g += `<line x1="${x0-8}" x2="${x1+8}" y1="${ay}" y2="${ay}" stroke="var(--muted)" stroke-width="3" stroke-linecap="round" opacity=".55"/>`;
+    g += `<text x="${(x0+x1)/2}" y="${ay+(k%2?32:18)}" class="small" text-anchor="middle">${esc(f.name)}</text>`; });
+  CANDS.forEach((c,i) => {
+    const st = stats(c.id), x = L+i*step, has = st.mean != null;
+    const r = has ? 7 + Math.sqrt(st.mean)*7.2 : 9, y = 150 + (i%2 ? 46 : -46);
+    const sel = c.id === selected ? " sel" : "";
+    g += `<g class="bub${sel}" data-id="${esc(c.id)}" tabindex="0" role="button" aria-label="${esc(c.name)}, ${has ? fmt(st.mean)+' %' : esc(T("notTested"))}">`;
+    g += `<line x1="${x}" x2="${x}" y1="${y+r}" y2="${ay}" stroke="var(--line)"/>`;
+    g += `<circle class="dot" cx="${x}" cy="${y}" r="${r}" fill="${esc(c.color)}" opacity="${has?1:.35}"/>`;
+    g += has ? (r > 22 ? `<text class="pct" x="${x}" y="${y+4}" text-anchor="middle">${fmt(st.mean)}</text>`
+                       : `<text class="pct out" x="${x}" y="${y-r-6}" text-anchor="middle">${fmt(st.mean)}</text>`) : "";
+    g += `<text class="nm" x="${x}" y="${i%2 ? y+r+16 : y-r-(has && r<=22 ? 22 : 8)}" text-anchor="middle">${esc(c.short || c.name)}</text></g>`;
+  });
+  svg.innerHTML = g;
+  svg.querySelectorAll(".bub").forEach(el => {
+    const go = () => { selected = el.dataset.id; drawAxis(); drawDetail(); $("#detail").scrollIntoView({behavior:"smooth",block:"nearest"}); };
+    el.addEventListener("click", go); el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); go(); } });
+  });
+}
+
+function drawDetail(){
+  const c = byId(selected); if (!c){ $("#detail").innerHTML = ""; return; }
+  const st = stats(c.id), sc = scenarios().find(s => s.id === scen), scenLabel = sc ? sc.label : T("all");
+  const P = c.program || {}, ST = T("status");
+  const docs = (P.docs||[]).map(d => `<li>${link(d)}${d.date ? ` <span class="src">· ${esc(T("docDate"))} ${esc(d.date)}</span>` : ""}${d.note ? `<span class="src">${esc(d.note)}</span>` : ""}</li>`).join("");
+  const prog = `<p style="margin:4px 0">${esc((ST && ST[P.status]) || "")}</p>` + (docs ? `<ul class="props">${docs}</ul>` : `<p class="empty">${esc(T("noProgram"))}</p>`);
+  const used = new Set();
+  const ideas = (c.ideas||[]).length ? `<ul class="props">${c.ideas.map(p => `<li>${gl(esc(p.t), used)}<span class="src">${esc(T("source"))} : ${link(p.src)}</span></li>`).join("")}</ul>` : `<p class="empty">—</p>`;
+  const A = c.analysis || {};
+  const ana = typeof A === "string" ? `<p>${gl(esc(A), used)}</p>` :
+    [["idea","idea"],["feasibility","feas"],["dynamics","dyn"]].filter(([k]) => A[k]).map(([k,l]) => `<p><b>${esc(T(l))}.</b> ${gl(esc(A[k]), used)}</p>`).join("");
+  const C0 = c.courant;
+  const cour = C0 ? `<div class="cour"><h4>${esc(C0.label)}${C0.claimed ? ` <span class="src">${esc(T("claimed"))}</span>` : ""}</h4>${C0.def ? `<p>${esc(C0.def)}</p>` : ""}${C0.figures ? `<p class="src">${esc(C0.figures)}</p>` : ""}${C0.lien ? `<p>${esc(C0.lien)}</p>` : ""}${(C0.links||[]).length ? `<div class="links" style="margin-top:8px">${C0.links.map(link).join("")}</div>` : ""}</div>` : `<p class="empty">—</p>`;
+  const M = c.mecanisme;
+  const flow = M ? `<div class="flow"><div class="flowh"><span class="eyebrow">${esc(T("mech"))}</span><span class="src">${esc(T("mechNote"))}</span></div>
+    ${[["mesure","m1",""],["effet","m2",""],["condition","m3",""],["risque","m4"," risk"]].map(([k,l,cl]) => `<div class="step${cl}"><span class="k">${esc(T(l))}</span><p>${gl(esc(M[k]), used)}</p></div>`).join("")}</div>` : "";
+  const pollRows = st.rows.map(r => `<div class="row"><span>${link({t:r.p.inst, u:r.p.src})} · ${esc(r.p.field)}</span><span>${fmt(r.m)} %</span></div>`).join("");
+  $("#detail").innerHTML = `<div class="detail">
+    <div class="col">
+      <div class="dhead"><span class="swatch" style="background:${esc(c.color)}"></span><h2>${esc(c.name)}</h2><span class="pill">${esc(c.party)}</span><span class="pill">${esc(c.family)}</span></div>
+      <div class="kv"><span>${esc(c.status || (c.declared ? T("declared") : T("potential")))}</span>${c.statusSrc ? `<span class="src">${esc(T("source"))} : ${link(c.statusSrc)}</span>` : ""}</div>
+      <div><div class="eyebrow">${esc(T("program"))}</div>${prog}</div>
+      <div><div class="eyebrow" style="margin-bottom:6px">${esc(T("ideas"))}</div>${ideas}</div>
+    </div>
+    <div class="col">
+      <div class="kv"><span class="eyebrow">${esc(T("round1"))}, ${esc(scenLabel)}</span>
+        <span class="big">${st.mean != null ? fmt(st.mean)+' %' : '—'}</span>
+        <span class="src">${st.mean != null ? `${esc(T("avgOf"))} ${st.n} ${esc(T("pollsters"))} · ${esc(T("range"))} ${fmt(st.min)}–${fmt(st.max)} %` : esc(T("notTested"))}</span></div>
+      ${pollRows ? `<div class="mini">${pollRows}</div>` : ""}
+      <div class="analysis"><div class="eyebrow">${esc(T("analysis"))}</div>${ana}
+        ${(c.arefs||[]).length ? `<div class="links" style="margin-top:8px">${c.arefs.map(link).join("")}</div>` : ""}</div>
+      <div><div class="eyebrow" style="margin-bottom:6px">${esc(T("school"))}</div>${cour}</div>
+    </div></div>${flow}`;
+}
+
+function drawSecond(){
+  const list = DATA.second || [];
+  if (!list.length){ $("#second").innerHTML = ""; return; }
+  const nm = id => (byId(id) || {name:id}).name, col = id => (byId(id) || {color:"#777"}).color;
+  const pairs = {}; list.forEach(s => (s.duels||[]).forEach(d => { const k = d.a + "|" + d.b; (pairs[k] = pairs[k] || []).push({s, d}); }));
+  $("#second").innerHTML = Object.values(pairs).map(rows => { const {a,b} = rows[0].d;
+    return `<div style="margin-bottom:14px"><h3>${esc(nm(a))} / ${esc(nm(b))}</h3>${rows.map(({s,d}) =>
+      `<div class="duel"><span class="src">${link({t:s.inst, u:s.src})} · ${esc(s.field)}</span>
+       <div class="bar" role="img" aria-label="${esc(nm(a))} ${d.ra} %, ${esc(nm(b))} ${d.rb} %"><span style="width:${d.ra}%;background:${esc(col(a))}">${fmt(d.ra)}</span><span style="width:${d.rb}%;background:${esc(col(b))};justify-content:flex-end">${fmt(d.rb)}</span></div></div>`).join("")}</div>`;
+  }).join("") + (DATA.meta.secondNote ? `<p class="hint">${esc(DATA.meta.secondNote)}</p>` : "");
+}
+
+function drawCtx(){
+  $("#ctx").innerHTML = (DATA.context||[]).map(k => `<div class="panel"><div class="eyebrow">${esc(k.label)}</div><div class="v">${esc(k.value)}</div>${k.note ? `<div class="src">${esc(k.note)}</div>` : ""}<div class="src">${link(k.src)}${k.date ? ` · ${esc(k.date)}` : ""}</div></div>`).join("");
+}
+function drawPolls(){
+  $("#polls").innerHTML = `<table><thead><tr><th>${esc(T("pollster"))}</th><th>${esc(T("client"))}</th><th>${esc(T("field"))}</th><th>${esc(T("pub"))}</th><th>${esc(T("sample"))}</th><th>${esc(T("hyps"))}</th><th>${esc(T("notice"))}</th></tr></thead><tbody>${
+    DATA.polls.map(p => `<tr><td>${esc(p.inst)}</td><td>${esc(p.client)}${p.note ? `<div class="src">${esc(p.note)}</div>` : ""}</td><td>${esc(p.field)}</td><td>${esc(fdate(p.pub))}</td><td>${esc(p.n)}</td><td class="n">${p.hyps.length}</td><td><a href="${esc(p.src)}" target="_blank" rel="noopener">↗</a></td></tr>`).join("")}</tbody></table>`;
+}
+function drawMethod(){
+  $("#method").innerHTML = (DATA.meta.method||[]).map(b => `<div class="mini"><h3>${esc(b.h)}</h3><p>${esc(b.p)}</p>${(b.links||[]).length ? `<div class="links">${b.links.map(link).join("")}</div>` : ""}</div>`).join("");
+}
+function drawMeta(){
+  $("#asof").textContent = `${T("asof")} ${fdate(DATA.meta.updated)}`;
+  $("#npolls").textContent = `${DATA.polls.length} ${T("nPolls")} · ${DATA.polls.reduce((a,p) => a+p.hyps.length, 0)} ${T("nHyps")}` + (GLOSS.length ? ` · ${GLOSS.length} ${T("nTerms")}` : "");
+  $("#log").innerHTML = (DATA.changelog||[]).slice().reverse().map(l => `<li><b>${esc(fdate(l.date))}</b> : ${esc(l.note)}</li>`).join("");
+}
+function renderAll(){
+  if (!DATA || !CANDS.length) return;
+  if (!byId(selected)) selected = (DATA.meta.defaultSelected && byId(DATA.meta.defaultSelected)) ? DATA.meta.defaultSelected : CANDS[0].id;
+  buildGloss(); drawStatic(); drawMeta(); drawAxis(); drawDetail(); drawSecond(); drawCtx(); drawPolls(); drawGloss(); drawMethod();
+  updateChrome();
+}
+
+// Sub-pages. The hash names the view in the workspace language (#glossaire, #glossary…);
+// #g-<term> opens the glossary on that term. Only plain #name hashes, as the hosting page requires.
+var VIEW_KEYS = ["radar", "second", "ctx", "polls", "gloss", "method"], view = "radar", pendingTarget = null;
+function slug(k){ return (T("slugs") || {})[k] || k; }
+function keyOf(h){ return VIEW_KEYS.find(k => slug(k) === h || k === h); }
+function hasSecond(){ return !!(DATA && (DATA.second || []).length); }
+function viewLabel(k){
+  if (k === "second") return T(DATA && DATA.meta.system === "two-round" ? "vSecond" : "vSeats");
+  return T({radar:"vRadar", ctx:"vCtx", polls:"vPolls", gloss:"vGloss", method:"vMethod"}[k]);
+}
+function buildNav(){
+  $("#navmenu").innerHTML = VIEW_KEYS.filter(k => k !== "second" || hasSecond()).map(k => {
+    const n = k === "polls" && DATA ? DATA.polls.length : k === "gloss" ? `${GLOSS.length} ${T("nTerms")}` : "";
+    return `<a href="#${esc(slug(k))}" data-k="${k}"${k === view ? ' aria-current="page"' : ""}><span>${esc(viewLabel(k))}</span>${n !== "" ? `<span class="n">${esc(n)}</span>` : ""}</a>`;
+  }).join("");
+}
+function updateChrome(){
+  $("#crumbTitle").textContent = (DATA && DATA.meta.title) || document.title;
+  $("#crumb").textContent = viewLabel(view);
+  $("#burger").setAttribute("aria-label", T("menu")); $("#topnav").setAttribute("aria-label", T("nav"));
+  if (!$("#navmenu").hidden) buildNav();
+}
+function closeMenu(){ $("#navmenu").hidden = true; $("#burger").setAttribute("aria-expanded", "false"); }
+function openMenu(){ buildNav(); $("#navmenu").hidden = false; $("#burger").setAttribute("aria-expanded", "true");
+  const a = $('#navmenu a[aria-current="page"]') || $("#navmenu a"); if (a) a.focus(); }
+function showView(k, target){
+  if (!VIEW_KEYS.includes(k) || (k === "second" && !hasSecond())) k = "radar";
+  view = k;
+  document.querySelectorAll("[data-view]").forEach(el => { el.hidden = el.dataset.view !== k; });
+  closeMenu(); updateChrome();
+  const el = target && document.getElementById(target);
+  if (el) requestAnimationFrame(() => el.scrollIntoView({block:"start"})); else window.scrollTo(0, 0);
+}
+function route(){
+  const h = decodeURIComponent(location.hash.slice(1)), t = pendingTarget; pendingTarget = null;
+  if (h.startsWith("g-")) showView("gloss", h); else showView(keyOf(h) || "radar", t);
+}
+$("#burger").addEventListener("click", e => { e.stopPropagation(); if ($("#navmenu").hidden) openMenu(); else closeMenu(); });
+document.addEventListener("click", e => { if (!$("#navmenu").hidden && !e.target.closest("#topnav")) closeMenu(); });
+document.addEventListener("keydown", e => {
+  if ($("#navmenu").hidden) return;
+  if (e.key === "Escape"){ closeMenu(); $("#burger").focus(); return; }
+  if (e.key === "ArrowDown" || e.key === "ArrowUp"){ e.preventDefault();
+    const items = [...document.querySelectorAll("#navmenu a")], i = items.indexOf(document.activeElement);
+    items[(i + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length].focus(); }
+});
+$("#navmenu").addEventListener("click", e => { const a = e.target.closest("a[data-k]"); if (a && a.dataset.k === view){ e.preventDefault(); closeMenu(); } });
+window.addEventListener("hashchange", route);
+renderAll();
+route();
+
+// Live data on a published page: the daily task writes site/dataset, site/candidates and site/glossary.
+// A local copy has no window.claude and simply keeps the embedded data.
+(async () => {
+  try {
+    if (!window.claude?.use) return;
+    const db = await window.claude.use("db"); if (!db) return;
+    const timer = setTimeout(() => { $("#livepill").textContent = T("offline"); }, 10000);
+    db.doc("site/dataset").onSnapshot(s => {
+      if (!s.metadata.fromCache) clearTimeout(timer);
+      const d = s.exists ? s.data() : null;
+      if (d && d.meta && Array.isArray(d.polls) && (!BASE_DATA || String(d.meta.updated) >= String(BASE_DATA.meta.updated))){
+        DATA = d; $("#livepill").textContent = `${T("checked")} ${fdate(d.meta.checkedAt || d.meta.updated)}`; renderAll();
+      }
+    }, () => clearTimeout(timer));
+    db.doc("site/candidates").onSnapshot(s => {
+      const d = s.exists ? s.data() : null;
+      if (d && Array.isArray(d.list) && d.list.length){ CANDS = d.list; renderAll(); }
+    }, () => {});
+    db.doc("site/glossary").onSnapshot(s => {
+      const d = s.exists ? s.data() : null;
+      if (d && Array.isArray(d.terms)){ GLOSS = d.terms; renderAll(); }
+    }, () => {});
+  } catch (e) { /* keep embedded data */ }
+})();
+</script>
+</body>
+</html>
