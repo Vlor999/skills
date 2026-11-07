@@ -14,8 +14,10 @@ method for discussing the campaign inside it.
   future session reads first.
 - **Index page**: `index.html`, rebuilt from `_data/*.json`: candidates on an
   indicative left-right axis, poll averages, runoffs or seat projections,
-  candidate cards, budget context. Optionally published as a Claude artifact
-  that reads its data from the artifact's database.
+  candidate cards, budget context. A ☰ menu splits it into sub-pages, each with
+  its own address in the workspace language (`#glossaire`, `#glossary`…).
+  Optionally published as a Claude artifact that reads its data from the
+  artifact's database.
 - **Glossary**: every technical term met in the discussion, with a sourced
   neutral definition and the question it came from.
 - **Two automations**: *local sync* (archive new documents) then *page update*

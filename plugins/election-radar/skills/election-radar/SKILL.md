@@ -11,7 +11,7 @@ The workspace has three layers, and each answers a different need:
 
 1. **Local folder**: the archive. Official documents in their original format, sorted by candidate, poll notices, context figures, and a manifest of where each file came from. It survives broken links and deleted pages.
 2. **State-of-play page** (`00 - …md`): the starting point a human or a future session reads first. Plain Markdown, also uploaded as a project file.
-3. **Index page** (`index.html`, optionally published with a live database): the visual overview, rebuilt from `_data/*.json`.
+3. **Index page** (`index.html`, optionally published with a live database): the visual overview, rebuilt from `_data/*.json`. A ☰ menu at the top left splits it into sub-pages (the field and candidate cards, runoff or seats, budget context, polls, glossary, method and log). Each sub-page has its own address in the workspace language (`#glossaire`, `#glossary`, `#glosario`…), so the user can bookmark or share one; the runoff entry only appears when there is runoff data.
 4. **Glossary** (`_data/glossary.json`, rendered as `Glossaire.md` / `Glossary.md` and as a searchable section of the page): every technical term met in the discussion, with a sourced definition and the question it came from. Terms are underlined in the candidate cards and link to their entry.
 
 Plus **two automations**: *local sync* (documents and state of play) runs first, *page update* (figures and live page) runs after it.
@@ -103,6 +103,7 @@ Write `<folder>/00 - <state of play>.md` (exact name in `radar.config.json` → 
 2. Copy `index.html` to the outputs folder and publish it with `db` declared, a title from `meta.title`, one emoji favicon.
 3. Write the three database documents with `write_db` (one `batch`): collection `site`, doc `dataset` (content of `dataset.json`), doc `candidates` (content of `candidates.json`) and doc `glossary` (content of `glossary.json`).
 4. Store the page URL in `radar.config.json` → `page.url`.
+5. In the hand-over, give the direct links to the sub-pages the user will use most (page URL + `#` + slug), and say that bookmarks work from the artifact's own page, where the address bar follows the sub-page.
 
 The page reads the database first and falls back on embedded data, so the automations only need to write the database, never republish.
 

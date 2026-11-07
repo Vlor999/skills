@@ -52,6 +52,7 @@ All text fields are in the workspace language. A source is always `{"t": "label"
 
 Rules:
 
+- `labels`: interface texts are built in for fr, en, es, de. For another language, override every key (see `LABELS.en` in `assets/index-template.html`), including `slugs`, the sub-page addresses: plain ASCII letters, digits and hyphens, never `settings`, `sidebar`, `customize`, `upgrade`, `downloads` or anything starting with `comment-` or `g-` (reserved by the host page and the glossary).
 - `system`: `two-round` shows runoff duels; anything else shows the `second` list under the "seat projections" heading (put seat projections there with the same `duels` shape only if they really are two-way; otherwise leave `second` empty and describe seats in `context`).
 - **One entry per pollster: its latest wave.** Replace the old wave when a new one comes out and say so in the changelog.
 - `hyps[].r` holds only candidates tested in that scenario. A candidate absent from a scenario is absent from `r`, never `0`.

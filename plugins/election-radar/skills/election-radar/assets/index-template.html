@@ -104,6 +104,28 @@ td.n{font-family:var(--mono);text-align:right;white-space:nowrap}
 .gterm .cands{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .gterm .cands button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:1px 9px;font:12.5px var(--body);cursor:pointer}
 a.gl{color:inherit;text-decoration:underline dotted;text-underline-offset:3px;cursor:help}
+/* Sub-page navigation: a ☰ menu at the top left, one sub-page per entry, chosen by the URL hash. */
+[hidden]{display:none!important}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin:-28px 0 -8px;padding:12px 0;border-bottom:1px solid var(--line)}
+.topnav{position:relative;display:flex;align-items:center;gap:12px}
+.burger{width:40px;height:40px;flex:none;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);display:inline-flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;cursor:pointer;padding:0}
+.burger span{display:block;width:18px;height:2px;background:currentColor;border-radius:2px;transition:transform .2s,opacity .2s}
+.burger[aria-expanded="true"] span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+.burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.crumb{display:flex;flex-direction:column;min-width:0}
+.crumb .eyebrow{font-size:10.5px}
+.crumb b{font:700 16px var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.navmenu{position:absolute;top:calc(100% + 8px);left:0;width:min(290px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px;box-shadow:0 12px 32px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:2px}
+.navmenu a{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;border-radius:7px;color:var(--ink);text-decoration:none;font-size:14.5px}
+.navmenu a:hover,.navmenu a:focus-visible{background:var(--chip);outline:none}
+.navmenu a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.navmenu .n{font:12px var(--mono);opacity:.75}
+#detail{scroll-margin-top:72px}
+.gterm{scroll-margin-top:72px}
+@media (prefers-reduced-motion:reduce){.burger span{transition:none}}
 .flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
 @media (max-width:760px){.flow{grid-template-columns:1fr}}
 .flowh{grid-column:1/-1;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -116,14 +138,21 @@ footer{font-size:12.5px;color:var(--muted)}
 </head>
 <body>
 <div class="wrap">
-<header>
+<div class="topbar">
+  <nav class="topnav" id="topnav">
+    <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="navmenu"><span></span><span></span><span></span></button>
+    <div class="crumb"><span class="eyebrow" id="crumbTitle"></span><b id="crumb"></b></div>
+    <div class="navmenu" id="navmenu" hidden></div>
+  </nav>
+</div>
+<header data-view="radar">
   <div class="eyebrow" id="eyebrow"></div>
   <h1 id="title"></h1>
   <p class="lede" id="lede"></p>
   <div class="meta"><span class="pill" id="asof"></span><span class="pill live" id="livepill"></span><span class="pill" id="npolls"></span></div>
 </header>
 
-<section aria-labelledby="h-axis">
+<section aria-labelledby="h-axis" data-view="radar">
   <h2 id="h-axis"></h2>
   <div class="panel">
     <div class="controls" id="scen"></div>
@@ -132,37 +161,37 @@ footer{font-size:12.5px;color:var(--muted)}
   </div>
 </section>
 
-<section aria-labelledby="h-detail">
+<section aria-labelledby="h-detail" data-view="radar">
   <h2 id="h-detail" class="eyebrow"></h2>
   <div class="panel" id="detail"></div>
 </section>
 
-<section aria-labelledby="h-second" id="sec-second">
+<section aria-labelledby="h-second" id="sec-second" data-view="second">
   <h2 id="h-second"></h2>
   <div class="panel" id="second"></div>
 </section>
 
-<section aria-labelledby="h-ctx">
+<section aria-labelledby="h-ctx" data-view="ctx">
   <h2 id="h-ctx"></h2>
   <div class="ctx" id="ctx"></div>
 </section>
 
-<section aria-labelledby="h-polls">
+<section aria-labelledby="h-polls" data-view="polls">
   <h2 id="h-polls"></h2>
   <div class="panel tscroll" id="polls"></div>
 </section>
 
-<section aria-labelledby="h-gloss" id="glossaire">
+<section aria-labelledby="h-gloss" id="sec-gloss" data-view="gloss">
   <h2 id="h-gloss"></h2>
   <div class="panel"><input class="gsearch" id="gsearch" type="search" autocomplete="off"><div class="glist" id="glist"></div></div>
 </section>
 
-<section aria-labelledby="h-method">
+<section aria-labelledby="h-method" data-view="method">
   <h2 id="h-method"></h2>
   <div class="panel grid2" id="method"></div>
 </section>
 
-<section aria-labelledby="h-log">
+<section aria-labelledby="h-log" data-view="method">
   <h2 id="h-log"></h2>
   <div class="panel"><ul class="log" id="log" style="margin:0;padding-left:18px"></ul></div>
 </section>
@@ -178,10 +207,10 @@ const BASE_GLOSS = /*__GLOSSARY__*/null;
 
 // Interface labels. meta.labels in the dataset overrides any key, so any language works.
 const LABELS = {
-  fr:{gloss:"Glossaire",glossSearch:"Chercher un terme…",glossEmpty:"Aucun terme pour l'instant : il se remplit au fil des questions.",glossQ:"Né de la question",glossSee:"Voir aussi",glossCands:"Candidats concernés",nTerms:"termes",mech:"Comment c'est censé marcher",m1:"La mesure",m2:"L'effet visé",m3:"Ce qui doit marcher",m4:"Le risque",mechNote:"Mesure sourcée, effet annoncé par le candidat ; condition et risque : analyse à challenger",claimed:"(revendiqué)",axis:"L'échiquier, sondages du 1er tour",axisHint:"Cliquez sur une bulle pour ouvrir la fiche. Taille et pourcentage : moyenne des dernières vagues de chaque institut, dans les hypothèses du scénario choisi. L'ordre gauche-droite est indicatif.",left:"◀ gauche",right:"droite ▶",all:"Toutes les hypothèses",card:"Fiche",second:"Second tour testé",seats:"Projections en sièges",ctx:"La contrainte que tout programme doit affronter",polls:"Sondages retenus",method:"Méthode et limites",log:"Journal des mises à jour",asof:"Données au",checked:"Vérifié le",daily:"Mise à jour quotidienne",offline:"Base injoignable : données embarquées",nPolls:"sondages",nHyps:"hypothèses",pollster:"Institut",client:"Commanditaire",field:"Terrain",pub:"Publié",sample:"Échantillon",hyps:"Hyp.",notice:"Source",program:"Programme et documents",ideas:"Propositions clés",analysis:"Analyse : idée, faisabilité, dynamique",idea:"Idée",feas:"Faisabilité",dyn:"Dynamique",school:"Courant de pensée",round1:"1er tour",avgOf:"moyenne de",pollsters:"institut(s)",range:"plage toutes hypothèses",notTested:"non testé dans ce scénario",noProgram:"Pas de programme complet publié dans les sources consultées.",status:{full:"Programme complet",partial:"Propositions partielles",none:"Pas de programme publié"},declared:"Candidature déclarée",potential:"Candidature non déclarée",source:"Source",docDate:"document du",footer:"Page tenue par un agent. Chaque chiffre renvoie à sa source ; signalez une erreur."},
-  en:{gloss:"Glossary",glossSearch:"Search a term…",glossEmpty:"No terms yet: it fills up as questions come in.",glossQ:"Asked in",glossSee:"See also",glossCands:"Candidates",nTerms:"terms",mech:"How it is supposed to work",m1:"The measure",m2:"The intended effect",m3:"What must hold",m4:"The risk",mechNote:"Sourced measure, effect as claimed by the candidate; condition and risk: analysis to challenge",claimed:"(claimed)",axis:"The field, first-round polls",axisHint:"Click a bubble to open the card. Size and percentage: average of each pollster's latest wave, within the selected scenario. Left-right order is indicative.",left:"◀ left",right:"right ▶",all:"All scenarios",card:"Candidate card",second:"Tested runoffs",seats:"Seat projections",ctx:"The constraint every platform must face",polls:"Polls used",method:"Method and limits",log:"Update log",asof:"Data as of",checked:"Checked on",daily:"Daily update",offline:"Database unreachable: embedded data",nPolls:"polls",nHyps:"scenarios",pollster:"Pollster",client:"Client",field:"Fieldwork",pub:"Published",sample:"Sample",hyps:"Scen.",notice:"Source",program:"Platform and documents",ideas:"Key proposals",analysis:"Analysis: idea, feasibility, dynamics",idea:"Idea",feas:"Feasibility",dyn:"Dynamics",school:"School of thought",round1:"First round",avgOf:"average of",pollsters:"pollster(s)",range:"range across scenarios",notTested:"not tested in this scenario",noProgram:"No full platform published in the sources checked.",status:{full:"Full platform",partial:"Partial proposals",none:"No platform published"},declared:"Declared candidate",potential:"Not declared",source:"Source",docDate:"document dated",footer:"Page maintained by an agent. Every figure links to its source; report errors."},
-  es:{gloss:"Glosario",glossSearch:"Buscar un término…",glossEmpty:"Aún no hay términos: se completa con cada pregunta.",glossQ:"Surgió de la pregunta",glossSee:"Ver también",glossCands:"Candidatos",nTerms:"términos",mech:"Cómo se supone que funciona",m1:"La medida",m2:"El efecto buscado",m3:"Lo que debe cumplirse",m4:"El riesgo",mechNote:"Medida con fuente, efecto según el candidato; condición y riesgo: análisis a discutir",claimed:"(reivindicado)",axis:"El tablero, encuestas de primera vuelta",axisHint:"Haga clic en una burbuja para abrir la ficha. Tamaño y porcentaje: media de la última oleada de cada instituto en el escenario elegido. El orden izquierda-derecha es indicativo.",left:"◀ izquierda",right:"derecha ▶",all:"Todas las hipótesis",card:"Ficha",second:"Segunda vuelta",seats:"Proyección de escaños",ctx:"La restricción que todo programa debe afrontar",polls:"Encuestas utilizadas",method:"Método y límites",log:"Registro de actualizaciones",asof:"Datos a",checked:"Verificado el",daily:"Actualización diaria",offline:"Base inaccesible: datos integrados",nPolls:"encuestas",nHyps:"hipótesis",pollster:"Instituto",client:"Cliente",field:"Trabajo de campo",pub:"Publicado",sample:"Muestra",hyps:"Hip.",notice:"Fuente",program:"Programa y documentos",ideas:"Propuestas clave",analysis:"Análisis: idea, viabilidad, dinámica",idea:"Idea",feas:"Viabilidad",dyn:"Dinámica",school:"Corriente de pensamiento",round1:"Primera vuelta",avgOf:"media de",pollsters:"instituto(s)",range:"rango en todas las hipótesis",notTested:"no probado en este escenario",noProgram:"Sin programa completo publicado en las fuentes consultadas.",status:{full:"Programa completo",partial:"Propuestas parciales",none:"Sin programa publicado"},declared:"Candidatura declarada",potential:"Candidatura no declarada",source:"Fuente",docDate:"documento del",footer:"Página mantenida por un agente. Cada cifra enlaza a su fuente; señale cualquier error."},
-  de:{gloss:"Glossar",glossSearch:"Begriff suchen…",glossEmpty:"Noch keine Begriffe: das Glossar wächst mit jeder Frage.",glossQ:"Entstanden aus der Frage",glossSee:"Siehe auch",glossCands:"Kandidaten",nTerms:"Begriffe",mech:"Wie es funktionieren soll",m1:"Die Maßnahme",m2:"Die beabsichtigte Wirkung",m3:"Was gelten muss",m4:"Das Risiko",mechNote:"Belegte Maßnahme, Wirkung laut Kandidat; Bedingung und Risiko: Analyse zur Diskussion",claimed:"(beansprucht)",axis:"Das Spielfeld, Umfragen",axisHint:"Klicken Sie auf eine Blase, um die Karte zu öffnen. Größe und Prozent: Mittel der letzten Welle jedes Instituts im gewählten Szenario. Die Links-Rechts-Reihenfolge ist nur ein Anhaltspunkt.",left:"◀ links",right:"rechts ▶",all:"Alle Szenarien",card:"Steckbrief",second:"Stichwahl",seats:"Sitzprojektionen",ctx:"Die Grenze, an der jedes Programm gemessen wird",polls:"Verwendete Umfragen",method:"Methode und Grenzen",log:"Änderungsprotokoll",asof:"Stand",checked:"Geprüft am",daily:"Tägliche Aktualisierung",offline:"Datenbank nicht erreichbar: eingebettete Daten",nPolls:"Umfragen",nHyps:"Szenarien",pollster:"Institut",client:"Auftraggeber",field:"Feldzeit",pub:"Veröffentlicht",sample:"Stichprobe",hyps:"Szen.",notice:"Quelle",program:"Programm und Dokumente",ideas:"Kernvorschläge",analysis:"Analyse: Idee, Machbarkeit, Dynamik",idea:"Idee",feas:"Machbarkeit",dyn:"Dynamik",school:"Denkschule",round1:"Erster Wahlgang",avgOf:"Mittel von",pollsters:"Institut(en)",range:"Spanne über alle Szenarien",notTested:"in diesem Szenario nicht abgefragt",noProgram:"Kein vollständiges Programm in den geprüften Quellen.",status:{full:"Vollständiges Programm",partial:"Teilvorschläge",none:"Kein Programm veröffentlicht"},declared:"Kandidatur erklärt",potential:"Kandidatur nicht erklärt",source:"Quelle",docDate:"Dokument vom",footer:"Von einem Agenten gepflegte Seite. Jede Zahl verlinkt ihre Quelle; Fehler bitte melden."}
+  fr:{vRadar:"L'échiquier et les fiches",vSecond:"Second tour",vSeats:"Sièges",vCtx:"Contexte budgétaire",vPolls:"Sondages retenus",vGloss:"Glossaire",vMethod:"Méthode et journal",menu:"Ouvrir le menu des sous-pages",nav:"Sous-pages",slugs:{radar:"radar",second:"second-tour",ctx:"contexte",polls:"sondages",gloss:"glossaire",method:"methode"},gloss:"Glossaire",glossSearch:"Chercher un terme…",glossEmpty:"Aucun terme pour l'instant : il se remplit au fil des questions.",glossQ:"Né de la question",glossSee:"Voir aussi",glossCands:"Candidats concernés",nTerms:"termes",mech:"Comment c'est censé marcher",m1:"La mesure",m2:"L'effet visé",m3:"Ce qui doit marcher",m4:"Le risque",mechNote:"Mesure sourcée, effet annoncé par le candidat ; condition et risque : analyse à challenger",claimed:"(revendiqué)",axis:"L'échiquier, sondages du 1er tour",axisHint:"Cliquez sur une bulle pour ouvrir la fiche. Taille et pourcentage : moyenne des dernières vagues de chaque institut, dans les hypothèses du scénario choisi. L'ordre gauche-droite est indicatif.",left:"◀ gauche",right:"droite ▶",all:"Toutes les hypothèses",card:"Fiche",second:"Second tour testé",seats:"Projections en sièges",ctx:"La contrainte que tout programme doit affronter",polls:"Sondages retenus",method:"Méthode et limites",log:"Journal des mises à jour",asof:"Données au",checked:"Vérifié le",daily:"Mise à jour quotidienne",offline:"Base injoignable : données embarquées",nPolls:"sondages",nHyps:"hypothèses",pollster:"Institut",client:"Commanditaire",field:"Terrain",pub:"Publié",sample:"Échantillon",hyps:"Hyp.",notice:"Source",program:"Programme et documents",ideas:"Propositions clés",analysis:"Analyse : idée, faisabilité, dynamique",idea:"Idée",feas:"Faisabilité",dyn:"Dynamique",school:"Courant de pensée",round1:"1er tour",avgOf:"moyenne de",pollsters:"institut(s)",range:"plage toutes hypothèses",notTested:"non testé dans ce scénario",noProgram:"Pas de programme complet publié dans les sources consultées.",status:{full:"Programme complet",partial:"Propositions partielles",none:"Pas de programme publié"},declared:"Candidature déclarée",potential:"Candidature non déclarée",source:"Source",docDate:"document du",footer:"Page tenue par un agent. Chaque chiffre renvoie à sa source ; signalez une erreur."},
+  en:{vRadar:"The field and candidate cards",vSecond:"Runoff",vSeats:"Seats",vCtx:"Budget context",vPolls:"Polls used",vGloss:"Glossary",vMethod:"Method and log",menu:"Open the page menu",nav:"Sub-pages",slugs:{radar:"radar",second:"runoff",ctx:"context",polls:"polls",gloss:"glossary",method:"method"},gloss:"Glossary",glossSearch:"Search a term…",glossEmpty:"No terms yet: it fills up as questions come in.",glossQ:"Asked in",glossSee:"See also",glossCands:"Candidates",nTerms:"terms",mech:"How it is supposed to work",m1:"The measure",m2:"The intended effect",m3:"What must hold",m4:"The risk",mechNote:"Sourced measure, effect as claimed by the candidate; condition and risk: analysis to challenge",claimed:"(claimed)",axis:"The field, first-round polls",axisHint:"Click a bubble to open the card. Size and percentage: average of each pollster's latest wave, within the selected scenario. Left-right order is indicative.",left:"◀ left",right:"right ▶",all:"All scenarios",card:"Candidate card",second:"Tested runoffs",seats:"Seat projections",ctx:"The constraint every platform must face",polls:"Polls used",method:"Method and limits",log:"Update log",asof:"Data as of",checked:"Checked on",daily:"Daily update",offline:"Database unreachable: embedded data",nPolls:"polls",nHyps:"scenarios",pollster:"Pollster",client:"Client",field:"Fieldwork",pub:"Published",sample:"Sample",hyps:"Scen.",notice:"Source",program:"Platform and documents",ideas:"Key proposals",analysis:"Analysis: idea, feasibility, dynamics",idea:"Idea",feas:"Feasibility",dyn:"Dynamics",school:"School of thought",round1:"First round",avgOf:"average of",pollsters:"pollster(s)",range:"range across scenarios",notTested:"not tested in this scenario",noProgram:"No full platform published in the sources checked.",status:{full:"Full platform",partial:"Partial proposals",none:"No platform published"},declared:"Declared candidate",potential:"Not declared",source:"Source",docDate:"document dated",footer:"Page maintained by an agent. Every figure links to its source; report errors."},
+  es:{vRadar:"El tablero y las fichas",vSecond:"Segunda vuelta",vSeats:"Escaños",vCtx:"Contexto presupuestario",vPolls:"Encuestas utilizadas",vGloss:"Glosario",vMethod:"Método y registro",menu:"Abrir el menú de subpáginas",nav:"Subpáginas",slugs:{radar:"radar",second:"segunda-vuelta",ctx:"contexto",polls:"encuestas",gloss:"glosario",method:"metodo"},gloss:"Glosario",glossSearch:"Buscar un término…",glossEmpty:"Aún no hay términos: se completa con cada pregunta.",glossQ:"Surgió de la pregunta",glossSee:"Ver también",glossCands:"Candidatos",nTerms:"términos",mech:"Cómo se supone que funciona",m1:"La medida",m2:"El efecto buscado",m3:"Lo que debe cumplirse",m4:"El riesgo",mechNote:"Medida con fuente, efecto según el candidato; condición y riesgo: análisis a discutir",claimed:"(reivindicado)",axis:"El tablero, encuestas de primera vuelta",axisHint:"Haga clic en una burbuja para abrir la ficha. Tamaño y porcentaje: media de la última oleada de cada instituto en el escenario elegido. El orden izquierda-derecha es indicativo.",left:"◀ izquierda",right:"derecha ▶",all:"Todas las hipótesis",card:"Ficha",second:"Segunda vuelta",seats:"Proyección de escaños",ctx:"La restricción que todo programa debe afrontar",polls:"Encuestas utilizadas",method:"Método y límites",log:"Registro de actualizaciones",asof:"Datos a",checked:"Verificado el",daily:"Actualización diaria",offline:"Base inaccesible: datos integrados",nPolls:"encuestas",nHyps:"hipótesis",pollster:"Instituto",client:"Cliente",field:"Trabajo de campo",pub:"Publicado",sample:"Muestra",hyps:"Hip.",notice:"Fuente",program:"Programa y documentos",ideas:"Propuestas clave",analysis:"Análisis: idea, viabilidad, dinámica",idea:"Idea",feas:"Viabilidad",dyn:"Dinámica",school:"Corriente de pensamiento",round1:"Primera vuelta",avgOf:"media de",pollsters:"instituto(s)",range:"rango en todas las hipótesis",notTested:"no probado en este escenario",noProgram:"Sin programa completo publicado en las fuentes consultadas.",status:{full:"Programa completo",partial:"Propuestas parciales",none:"Sin programa publicado"},declared:"Candidatura declarada",potential:"Candidatura no declarada",source:"Fuente",docDate:"documento del",footer:"Página mantenida por un agente. Cada cifra enlaza a su fuente; señale cualquier error."},
+  de:{vRadar:"Spielfeld und Steckbriefe",vSecond:"Stichwahl",vSeats:"Sitze",vCtx:"Haushaltslage",vPolls:"Verwendete Umfragen",vGloss:"Glossar",vMethod:"Methode und Protokoll",menu:"Menü der Unterseiten öffnen",nav:"Unterseiten",slugs:{radar:"radar",second:"stichwahl",ctx:"kontext",polls:"umfragen",gloss:"glossar",method:"methode"},gloss:"Glossar",glossSearch:"Begriff suchen…",glossEmpty:"Noch keine Begriffe: das Glossar wächst mit jeder Frage.",glossQ:"Entstanden aus der Frage",glossSee:"Siehe auch",glossCands:"Kandidaten",nTerms:"Begriffe",mech:"Wie es funktionieren soll",m1:"Die Maßnahme",m2:"Die beabsichtigte Wirkung",m3:"Was gelten muss",m4:"Das Risiko",mechNote:"Belegte Maßnahme, Wirkung laut Kandidat; Bedingung und Risiko: Analyse zur Diskussion",claimed:"(beansprucht)",axis:"Das Spielfeld, Umfragen",axisHint:"Klicken Sie auf eine Blase, um die Karte zu öffnen. Größe und Prozent: Mittel der letzten Welle jedes Instituts im gewählten Szenario. Die Links-Rechts-Reihenfolge ist nur ein Anhaltspunkt.",left:"◀ links",right:"rechts ▶",all:"Alle Szenarien",card:"Steckbrief",second:"Stichwahl",seats:"Sitzprojektionen",ctx:"Die Grenze, an der jedes Programm gemessen wird",polls:"Verwendete Umfragen",method:"Methode und Grenzen",log:"Änderungsprotokoll",asof:"Stand",checked:"Geprüft am",daily:"Tägliche Aktualisierung",offline:"Datenbank nicht erreichbar: eingebettete Daten",nPolls:"Umfragen",nHyps:"Szenarien",pollster:"Institut",client:"Auftraggeber",field:"Feldzeit",pub:"Veröffentlicht",sample:"Stichprobe",hyps:"Szen.",notice:"Quelle",program:"Programm und Dokumente",ideas:"Kernvorschläge",analysis:"Analyse: Idee, Machbarkeit, Dynamik",idea:"Idee",feas:"Machbarkeit",dyn:"Dynamik",school:"Denkschule",round1:"Erster Wahlgang",avgOf:"Mittel von",pollsters:"Institut(en)",range:"Spanne über alle Szenarien",notTested:"in diesem Szenario nicht abgefragt",noProgram:"Kein vollständiges Programm in den geprüften Quellen.",status:{full:"Vollständiges Programm",partial:"Teilvorschläge",none:"Kein Programm veröffentlicht"},declared:"Kandidatur erklärt",potential:"Kandidatur nicht erklärt",source:"Quelle",docDate:"Dokument vom",footer:"Von einem Agenten gepflegte Seite. Jede Zahl verlinkt ihre Quelle; Fehler bitte melden."}
 };
 
 let DATA = BASE_DATA, CANDS = (BASE_CANDS && BASE_CANDS.list) || [], GLOSS = (BASE_GLOSS && BASE_GLOSS.terms) || [], scen = "all", selected = null, gq = "";
@@ -242,7 +271,7 @@ function drawGloss(){
       ${firstQ ? `<p class="src">${esc(T("glossQ"))} : « ${esc(firstQ.q)} » (${esc(fdate(firstQ.date))})${qs.length > 1 ? ` · +${qs.length-1}` : ""}</p>` : ""}
       ${(t.related||[]).filter(byId).length ? `<div class="cands">${t.related.filter(byId).map(id => `<button data-c="${esc(id)}">${esc(byId(id).short || byId(id).name)}</button>`).join("")}</div>` : ""}</div>`; }).join("");
   $("#glist").querySelectorAll("button[data-c]").forEach(b => b.addEventListener("click", () => {
-    selected = b.dataset.c; drawAxis(); drawDetail(); $("#detail").scrollIntoView({behavior:"smooth", block:"start"}); }));
+    selected = b.dataset.c; drawAxis(); drawDetail(); pendingTarget = "detail"; location.hash = slug("radar"); }));
 }
 $("#gsearch").addEventListener("input", e => { gq = e.target.value; drawGloss(); });
 
@@ -327,7 +356,7 @@ function drawDetail(){
 
 function drawSecond(){
   const list = DATA.second || [];
-  $("#sec-second").hidden = !list.length; if (!list.length) return;
+  if (!list.length){ $("#second").innerHTML = ""; return; }
   const nm = id => (byId(id) || {name:id}).name, col = id => (byId(id) || {color:"#777"}).color;
   const pairs = {}; list.forEach(s => (s.duels||[]).forEach(d => { const k = d.a + "|" + d.b; (pairs[k] = pairs[k] || []).push({s, d}); }));
   $("#second").innerHTML = Object.values(pairs).map(rows => { const {a,b} = rows[0].d;
@@ -356,8 +385,59 @@ function renderAll(){
   if (!DATA || !CANDS.length) return;
   if (!byId(selected)) selected = (DATA.meta.defaultSelected && byId(DATA.meta.defaultSelected)) ? DATA.meta.defaultSelected : CANDS[0].id;
   buildGloss(); drawStatic(); drawMeta(); drawAxis(); drawDetail(); drawSecond(); drawCtx(); drawPolls(); drawGloss(); drawMethod();
+  updateChrome();
 }
+
+// Sub-pages. The hash names the view in the workspace language (#glossaire, #glossary…);
+// #g-<term> opens the glossary on that term. Only plain #name hashes, as the hosting page requires.
+var VIEW_KEYS = ["radar", "second", "ctx", "polls", "gloss", "method"], view = "radar", pendingTarget = null;
+function slug(k){ return (T("slugs") || {})[k] || k; }
+function keyOf(h){ return VIEW_KEYS.find(k => slug(k) === h || k === h); }
+function hasSecond(){ return !!(DATA && (DATA.second || []).length); }
+function viewLabel(k){
+  if (k === "second") return T(DATA && DATA.meta.system === "two-round" ? "vSecond" : "vSeats");
+  return T({radar:"vRadar", ctx:"vCtx", polls:"vPolls", gloss:"vGloss", method:"vMethod"}[k]);
+}
+function buildNav(){
+  $("#navmenu").innerHTML = VIEW_KEYS.filter(k => k !== "second" || hasSecond()).map(k => {
+    const n = k === "polls" && DATA ? DATA.polls.length : k === "gloss" ? `${GLOSS.length} ${T("nTerms")}` : "";
+    return `<a href="#${esc(slug(k))}" data-k="${k}"${k === view ? ' aria-current="page"' : ""}><span>${esc(viewLabel(k))}</span>${n !== "" ? `<span class="n">${esc(n)}</span>` : ""}</a>`;
+  }).join("");
+}
+function updateChrome(){
+  $("#crumbTitle").textContent = (DATA && DATA.meta.title) || document.title;
+  $("#crumb").textContent = viewLabel(view);
+  $("#burger").setAttribute("aria-label", T("menu")); $("#topnav").setAttribute("aria-label", T("nav"));
+  if (!$("#navmenu").hidden) buildNav();
+}
+function closeMenu(){ $("#navmenu").hidden = true; $("#burger").setAttribute("aria-expanded", "false"); }
+function openMenu(){ buildNav(); $("#navmenu").hidden = false; $("#burger").setAttribute("aria-expanded", "true");
+  const a = $('#navmenu a[aria-current="page"]') || $("#navmenu a"); if (a) a.focus(); }
+function showView(k, target){
+  if (!VIEW_KEYS.includes(k) || (k === "second" && !hasSecond())) k = "radar";
+  view = k;
+  document.querySelectorAll("[data-view]").forEach(el => { el.hidden = el.dataset.view !== k; });
+  closeMenu(); updateChrome();
+  const el = target && document.getElementById(target);
+  if (el) requestAnimationFrame(() => el.scrollIntoView({block:"start"})); else window.scrollTo(0, 0);
+}
+function route(){
+  const h = decodeURIComponent(location.hash.slice(1)), t = pendingTarget; pendingTarget = null;
+  if (h.startsWith("g-")) showView("gloss", h); else showView(keyOf(h) || "radar", t);
+}
+$("#burger").addEventListener("click", e => { e.stopPropagation(); if ($("#navmenu").hidden) openMenu(); else closeMenu(); });
+document.addEventListener("click", e => { if (!$("#navmenu").hidden && !e.target.closest("#topnav")) closeMenu(); });
+document.addEventListener("keydown", e => {
+  if ($("#navmenu").hidden) return;
+  if (e.key === "Escape"){ closeMenu(); $("#burger").focus(); return; }
+  if (e.key === "ArrowDown" || e.key === "ArrowUp"){ e.preventDefault();
+    const items = [...document.querySelectorAll("#navmenu a")], i = items.indexOf(document.activeElement);
+    items[(i + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length].focus(); }
+});
+$("#navmenu").addEventListener("click", e => { const a = e.target.closest("a[data-k]"); if (a && a.dataset.k === view){ e.preventDefault(); closeMenu(); } });
+window.addEventListener("hashchange", route);
 renderAll();
+route();
 
 // Live data on a published page: the daily task writes site/dataset, site/candidates and site/glossary.
 // A local copy has no window.claude and simply keeps the embedded data.
