@@ -79,6 +79,11 @@ tasks run only while the computer is awake and Claude Desktop is open.
 Start with a request such as: *"Set up a radar for the 2027 French presidential
 election, in French."*
 
+## Privacy
+
+See the [Privacy policy](PRIVACY.md): what the plugin stores, where, and which
+third parties it contacts.
+
 ## License
 
 MIT, see [LICENSE](LICENSE).

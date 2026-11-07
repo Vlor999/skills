@@ -3,9 +3,19 @@
   "displayName": "Election Radar",
   "version": "1.0.0",
   "description": "Sourced election-watch workspace for any country, election and year: archived official documents, state of play, interactive index page, growing glossary and two daily automations.",
-  "author": { "name": "Willem Adnet" },
+  "author": {
+    "name": "Willem Adnet"
+  },
   "homepage": "https://github.com/Vlor999/skills/tree/main/plugins/election-radar",
   "repository": "https://github.com/Vlor999/skills",
   "license": "MIT",
-  "keywords": ["election", "polls", "candidates", "platforms", "research", "sources"]
+  "privacyPolicyUrl": "https://github.com/Vlor999/skills/blob/main/plugins/election-radar/PRIVACY.md",
+  "keywords": [
+    "election",
+    "polls",
+    "candidates",
+    "platforms",
+    "research",
+    "sources"
+  ]
 }
