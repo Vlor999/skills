@@ -60,6 +60,19 @@ plugins/
         STATE-TEMPLATE.md
         assets/index-template.html
         scripts/*.py
+  election-radar-lite/
+    .claude-plugin/plugin.json
+    README.md, LICENSE, PRIVACY.md, SECURITY.md, TERMS.md
+    skills/
+      election-radar-lite/
+        SKILL.md
+        WORKSPACE.md
+        PAGE-SPEC.md
+        AUTOMATIONS.md
+        DATA-FORMAT.md
+        PROJECT-RULES.md
+        SOURCES.md
+        STATE-TEMPLATE.md
 .claude-plugin/
   marketplace.json
 ```
@@ -75,6 +88,7 @@ listed in the repository marketplace (`.claude-plugin/marketplace.json`).
 | --- | --- |
 | `caveman` | Enables an ultra-compressed communication mode that keeps technical accuracy while reducing filler and token usage. |
 | `election-radar` | Sets up a sourced election-watch workspace (archived official documents, state of play, interactive index page, glossary, scheduled sync automations) and serves as the discussion method inside it. |
+| `election-radar-lite` | Instructions-only edition of `election-radar` (no bundled scripts or page template), eligible for Anthropic's plugin directory. |
 | `fill-pr-template` | Drafts a pull request description from the current branch diff, commits, and repository PR template. |
 | `grilling` | Stress-tests a plan or design by asking focused questions until the decision tree is clear. |
 | `grill-with-docs` | Stress-tests a plan against project language and documentation, then updates `CONTEXT.md` and ADRs as decisions are made. |

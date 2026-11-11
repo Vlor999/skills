@@ -1,12 +1,19 @@
 {
   "name": "vlor999-skills",
   "description": "Reviewed skills and plugins by Willem Adnet.",
-  "owner": { "name": "Willem Adnet" },
+  "owner": {
+    "name": "Willem Adnet"
+  },
   "plugins": [
     {
       "name": "election-radar",
       "source": "./plugins/election-radar",
       "description": "Sourced election-watch workspace with archived documents, live page, glossary and daily automations."
+    },
+    {
+      "name": "election-radar-lite",
+      "source": "./plugins/election-radar-lite",
+      "description": "Instructions-only edition of election-radar: same workspace, no bundled scripts."
     }
   ]
 }
