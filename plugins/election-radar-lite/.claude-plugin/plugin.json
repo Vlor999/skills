@@ -1,0 +1,26 @@
+{
+  "name": "election-radar-lite",
+  "displayName": "Election Radar Lite",
+  "version": "1.0.0",
+  "description": "Sourced election-watch workspace for any country, election and year, instructions only (no bundled scripts): archived official documents, state of play, interactive index page, growing glossary and two daily automations.",
+  "author": {
+    "name": "Willem Adnet",
+    "url": "https://github.com/Vlor999"
+  },
+  "homepage": "https://github.com/Vlor999/skills/tree/main/plugins/election-radar-lite",
+  "repository": "https://github.com/Vlor999/skills",
+  "license": "MIT",
+  "keywords": [
+    "election",
+    "polls",
+    "candidates",
+    "platforms",
+    "research",
+    "sources"
+  ],
+  "icon": "./.claude-plugin/icon.png",
+  "documentationUrl": "https://github.com/Vlor999/skills/blob/main/plugins/election-radar-lite/README.md",
+  "supportUrl": "https://github.com/Vlor999/skills/issues",
+  "privacyPolicyUrl": "https://github.com/Vlor999/skills/blob/main/plugins/election-radar-lite/PRIVACY.md",
+  "termsOfServiceUrl": "https://github.com/Vlor999/skills/blob/main/plugins/election-radar-lite/TERMS.md"
+}
